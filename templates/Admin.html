@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>
+        {% block title %}
+            管理中心
+        {% endblock %}
+    </title>
+    {# 引入bootstrap #}
+    {{ bootstrap.load_css() }}
+    {{ bootstrap.load_js() }}
+
+    <style>
+        #nav {
+            box-sizing: border-box;
+            width: 85%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-left: 7%;
+            margin-top: 10px;
+        }
+
+    </style>
+
+    {# 导航 #}
+    <div id="nav">
+        <h3>Car Repair ERP</h3>
+        <h5>管理员模式</h5>
+        <ul class="nav nav-tabs">
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">系统设置</a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href={{ url_for('A.user') }}>用户管理</a>
+                    <a class="dropdown-item" href="#">工单管理</a>
+                    <a class="dropdown-item" href="#">仓库管理</a>
+                    <a class="dropdown-item" href="#">车辆档案管理</a>
+                    <a class="dropdown-item" href="#">系统参数设置</a>
+
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href={{ url_for('logout') }}>退出</a>
+            </li>
+
+        </ul>
+
+    </div>
+
+</head>
+
+
+<body>
+<div id="nav">
+    {% block body %}
+
+    {% endblock %}
+</div>
+</body>
+
+</html>

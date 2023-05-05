@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>
+        {% block title %}
+        {% endblock %}
+    </title>
+    {# 引入bootstrap #}
+    {{ bootstrap.load_css() }}
+    {{ bootstrap.load_js() }}
+
+    <style>
+        #nav {
+            box-sizing: border-box;
+            width: 85%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-left: 7%;
+            margin-top: 10px;
+        }
+
+        {% block styles  %}
+        {% endblock %}
+
+    </style>
+
+    {# 导航 #}
+    <div id="nav">
+        <h5>Car Repair ERP</h5>
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link" href="#"><h5>开始</h5></a>
+            </li>
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">维修接待</a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#">维修开单</a>
+                    <a class="dropdown-item" href="#">维修派工</a>
+                    <a class="dropdown-item" href="#">维修结算</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#">车辆档案管理</a>
+                    <a class="dropdown-item" href="#">工时项目管理</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">仓库管理</a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#">配件信息</a>
+                    <a class="dropdown-item" href="#">配件出库</a>
+                    <a class="dropdown-item" href="#">配件入库</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">数据中心</a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#">产值统计</a>
+                    <a class="dropdown-item" href="#">工时统计</a>
+                    <a class="dropdown-item" href="#">材料统计</a>
+
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">系统设置</a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href={{ url_for('user_settings') }}>用户设置</a>
+
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('logout') }}">退出</a>
+            </li>
+
+        </ul>
+    </div>
+
+</head>
+
+
+<body>
+<div id="nav">
+    {% block body %}
+    {% endblock %}
+</div>
+</body>
+
+</html>

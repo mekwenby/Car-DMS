@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    {{ bootstrap.load_css() }}
+    {{ bootstrap.load_js() }}
+    <style>
+        #login {
+            box-sizing: border-box;
+            width: 50%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-left: 25%;
+            margin-top: 10%;
+        }
+
+    </style>
+</head>
+
+<body>
+<div id="login">
+    <h5>用户登录</h5>
+    <form method="post" action="{{ url_for('login') }}">
+        <div class="form-group">
+            <label for="exampleInputEmail1">用户名</label>
+            <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
+                   name="username">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword1">密码</label>
+            <input type="password" class="form-control" id="exampleInputPassword1" name="passwd">
+        </div>
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" id="exampleCheck1" name="check">
+            <label class="form-check-label" for="exampleCheck1">今日自动登录</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    {{ hint|safe }}
+</div>
+</body>
+</html>

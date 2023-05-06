@@ -1,5 +1,5 @@
 import time
-from flask import Flask, render_template, url_for, request, g, make_response, redirect
+from flask import Flask, render_template, url_for, request, g, make_response, redirect, abort
 from flask_bootstrap import Bootstrap4
 import Model.apiengine as mapi
 import Tool as tools
@@ -34,6 +34,7 @@ def get_username_md5(value):
     return f'Labe{tools.get_name_md5(value)}'
 
 
+# 请求前钩子函数
 @app.before_request
 def examine_cookie():
     """验证Cookie"""
@@ -41,7 +42,16 @@ def examine_cookie():
     token = request.cookies.get('token')
     user = mapi.get_user_by_token(username, token)
     g.user = user
-    print(user)
+
+
+# 404 处理
+@app.errorhandler(404)
+def page_not_found(e):
+    """
+    处理404页面问题
+    这个 ‘e’ 我也不知道是什么
+    """
+    return render_template('404.html'), 404
 
 
 # 登录
@@ -125,8 +135,17 @@ def hello_world():
 # 管理员界面
 @app.route('/admin')
 def admin():
-    return render_template('admin.html')
+    if g.user is not None and g.user.username == 'admin':
+        return render_template('Admin.html')
+    else:
+        return redirect(url_for('hello_world'))
+
+
+@app.route('/404')
+def page_not_found():
+    """404 not found page"""
+    abort(404)
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)

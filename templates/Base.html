@@ -36,20 +36,21 @@
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">维修接待</a>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="#">维修开单</a>
-                    <a class="dropdown-item" href="#">维修派工</a>
-                    <a class="dropdown-item" href="#">维修结算</a>
+                    <a class="dropdown-item" href="{{ url_for('User.WorkOrder') }}">维修开单</a>
+                    <a class="dropdown-item" href="{{ url_for('User.Dispatch') }}">维修派工</a>
+                    <a class="dropdown-item" href="{{ url_for('User.Checkout') }}">维修结算</a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="#">车辆档案管理</a>
-                    <a class="dropdown-item" href="#">工时项目管理</a>
+                    <a class="dropdown-item" href="{{ url_for('User.car') }}">车辆档案管理</a>
+                    <a class="dropdown-item" href="{{ url_for('User.WorkingGroup') }}">维修班组管理</a>
+                    <a class="dropdown-item" href="{{ url_for('User.Project') }}">工时项目管理</a>
                 </div>
             </li>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">仓库管理</a>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="#">配件信息</a>
-                    <a class="dropdown-item" href="#">配件出库</a>
-                    <a class="dropdown-item" href="#">配件入库</a>
+                    <a class="dropdown-item" href="{{ url_for('User.Component') }}">配件信息</a>
+                    <a class="dropdown-item" href="{{ url_for('User.ToComponent') }}">配件出库</a>
+                    <a class="dropdown-item" href="{{ url_for('User.ImComponent') }}">配件入库</a>
                 </div>
             </li>
             <li class="nav-item dropdown">

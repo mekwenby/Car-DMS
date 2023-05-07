@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template, request, g, redirect, url_for
+from flask import Blueprint, render_template, request, g, redirect, url_for, make_response
 import Tool as tools
+import Model.apiengine as mapi
 
 bp = Blueprint('User', __name__)
 
@@ -27,16 +28,41 @@ def changePassword():
 # 管理车辆档案
 @bp.route('/car')
 def car():
-    return redirect(url_for('page_not_found'))
+    if g.user is not None:
+
+        return render_template('Car.html', car_list=mapi.get_car_list())
+    else:
+        return redirect(url_for('login'))
 
 
 # 添加车辆信息
-@bp.route('/addcar', methods=['POST'])
-def addCar():
-    return redirect(url_for('page_not_found'))
+@bp.route('/addcar/<code>', methods=['POST', 'GET'])
+def addCar(code):
+    if g.user is not None:
+        if request.method == 'GET':
+            if code == 'new':
+                return render_template('AddCar.html')
+            else:
+                _car = mapi.get_car_carcode(code)
+                return render_template('AddCar.html', car=_car)
+        elif request.method == 'POST':
+            code = request.form.get('code')
+            car_code = request.form.get('car_code')
+            model = request.form.get('model')
+            master = request.form.get('master')
+            phone = request.form.get('phone')
+
+            try:
+                mapi.add_car(code, car_code, model, master, phone)
+                return redirect(url_for('User.car'))
+            except:
+                return render_template('Car.html', car_list=mapi.get_car_list(), msg=f'{car_code} 已存在')
+    else:
+        return redirect(url_for('login'))
+
+    # 更新车辆信息
 
 
-# 更新车辆信息
 @bp.route('/updatecar', methods=['POST'])
 def updateCar():
     return redirect(url_for('page_not_found'))

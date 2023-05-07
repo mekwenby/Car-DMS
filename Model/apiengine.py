@@ -71,3 +71,21 @@ def add_user(username, passwd):
 def get_user_list():
     """获取用户列表"""
     return [user for user in User.select()]
+
+
+def get_car_list():
+    return [car for car in Car.select()]
+
+
+def get_car_carcode(code):
+    car = Car.get_or_none(Car.car_code == code)
+    print('-----------------------',car)
+    return car
+
+
+def add_car(code, car_code, model, master, phone):
+    Car.create(code=code, car_code=car_code, model=model, master=master, phone=phone)
+
+if __name__ == '__main__':
+    c = get_car_carcode('DK965231')
+    print(c)

@@ -203,7 +203,10 @@ def create_demo_workorder():
     # 业务数据模拟
     # 获取车辆
     car = Car.get(id=1)
-    print(car.code, car.master)
+    car.last_im_time = datetime.datetime.now()
+    car.save()
+
+    print(car.code, car.master,car.last_im_time)
     # 获取用户
     user = User.get(id=2)
     print('开单用户', user.username)
@@ -257,6 +260,7 @@ def create_demo_workorder():
             outbound_price += outbound.price * outbound.number
 
         wo.checkout = True
+
         wo.checkout_time = datetime.datetime.now()
         wo.init_price = wg_price + outbound_price
         wo.real_price = wo.init_price
@@ -303,4 +307,3 @@ if __name__ == '__main__':
     recover()
     create_demo_data()
     create_demo_workorder()
-

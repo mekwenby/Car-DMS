@@ -1,0 +1,71 @@
+{% extends 'Base.html' %}
+
+{% block title %}
+    车辆档案管理
+{% endblock %}
+
+{% block styles %}
+    #chars {
+    box-sizing: border-box;
+    width: 40%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-left: 5px;
+    margin-top: 10px;
+    }
+    #header-link {
+    color: black;
+    }
+{% endblock %}
+
+
+{% block body %}
+
+    <form class="form-inline my-2 my-lg-0">
+        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="key">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">查找</button>
+        <div style="margin-left: 30px;">
+            <button type="button" class="btn btn-primary"><a href="/User/addcar/new" id="header-link">添加车辆信息</a></button>
+        </div>
+    </form>
+    {% if msg|length > 0 %}
+        <br>
+    <div class="alert alert-danger" role="alert">
+        {{ msg }}
+    </div>
+    {% endif %}
+    <br>
+    {% if car_list|length > 0 %}
+        <table class="table">
+            <thead>
+            <tr>
+                <th>车牌号</th>
+                <th>车架号</th>
+                <th>车型</th>
+                <th>行驶里程</th>
+                <th>最后进店时间</th>
+                <th>#</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for car in car_list %}
+                <tr>
+                    <td>{{ car.code }}</td>
+                    <td>{{ car.car_code }}</td>
+                    <td>{{ car.model }}</td>
+                    <td>{{ car.length }}</td>
+                    <td>{{ car.last_im_time|time_ftm }}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary"><a href="addcar/{{ car.car_code }}"
+                                                                         id="header-link">编辑</a></button>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    {% endif %}
+
+
+{% endblock %}
+

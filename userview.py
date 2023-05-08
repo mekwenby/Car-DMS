@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, g, redirect, url_for, make_response
 import Tool as tools
 import Model.apiengine as mapi
+from Model import Car
 
 bp = Blueprint('User', __name__)
 
@@ -29,8 +30,18 @@ def changePassword():
 @bp.route('/car')
 def car():
     if g.user is not None:
+        key = request.args.get('key')
+        print(key)
+        if key is None:
+            return render_template('Car.html', car_list=mapi.get_car_list())
+        else:
 
-        return render_template('Car.html', car_list=mapi.get_car_list())
+            code_list = [car_ for car_ in Car.select().where(Car.code.contains(f'{key}'))]
+            print(code_list)
+            car_code_list = [car_ for car_ in Car.select().where(Car.car_code.contains(f'{key}'))]
+            print(car_code_list)
+            car_list = list(set(code_list + car_code_list))
+            return render_template('Car.html', car_list=car_list)
     else:
         return redirect(url_for('login'))
 
@@ -46,17 +57,27 @@ def addCar(code):
                 _car = mapi.get_car_carcode(code)
                 return render_template('AddCar.html', car=_car)
         elif request.method == 'POST':
-            code = request.form.get('code')
+
+            code_ = request.form.get('code')
             car_code = request.form.get('car_code')
             model = request.form.get('model')
             master = request.form.get('master')
             phone = request.form.get('phone')
 
-            try:
-                mapi.add_car(code, car_code, model, master, phone)
+            if code == 'new':  # 新增流程
+                try:
+                    mapi.add_car(code_, car_code, model, master, phone)
+                    return redirect(url_for('User.car'))
+                except:
+                    return render_template('Car.html', car_list=mapi.get_car_list(), msg=f'{car_code} 已存在')
+            else:  # 修改流程
+                car_ = Car.get_or_none(Car.car_code == car_code)
+                car_.code = code_
+                car_.master = master
+                car_.model = model
+                car_.phone = phone
+                car_.save()
                 return redirect(url_for('User.car'))
-            except:
-                return render_template('Car.html', car_list=mapi.get_car_list(), msg=f'{car_code} 已存在')
     else:
         return redirect(url_for('login'))
 

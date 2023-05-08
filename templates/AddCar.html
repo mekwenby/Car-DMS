@@ -52,7 +52,38 @@
 
 
     {% else %}
-        <h1>{{ car.code }}</h1>
+        <form action=/User/addcar/{{ car.car_code }} id="myForm" onsubmit="return checkForm(this);" method="post">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="inputEmail4">车牌号</label>
+                    <input type="text" class="form-control" id="inputEmail4" placeholder="京A00001" name="code"
+                           value="{{ car.code }}">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="inputPassword4">车架号</label>
+                    {# readonly 只读 #}
+                    <input type="text" class="form-control" id="inputPassword4" name="car_code"
+                           value="{{ car.car_code }}" readonly>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputAddress">车辆型号</label>
+                <input type="text" class="form-control" id="inputAddress" placeholder="铃木奥拓 2013款" name="model"
+                       value="{{ car.model }}">
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="inputEmail4">客户姓名</label>
+                    <input type="text" class="form-control" id="inputEmail4" name="master" value="{{ car.master }}">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="inputPassword4">联系方式</label>
+                    <input type="text" class="form-control" id="inputPassword4" name="phone" value="{{ car.phone }}">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">保存</button>
+
+        </form>
     {% endif %}
 
 

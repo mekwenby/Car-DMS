@@ -14,7 +14,7 @@
     margin-top: 10px;
     }
     #header-link {
-    color: black;
+    color: white;
     }
 {% endblock %}
 
@@ -25,14 +25,16 @@
         <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="key">
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">查找</button>
         <div style="margin-left: 30px;">
-            <button type="button" class="btn btn-primary"><a href="/User/addcar/new" id="header-link">添加车辆信息</a></button>
+            <button type="button" class="btn btn-primary"><a href="/User/addcar/new" id="header-link">添加车辆信息</a>
+            </button>
         </div>
     </form>
     {% if msg|length > 0 %}
         <br>
-    <div class="alert alert-danger" role="alert">
-        {{ msg }}
-    </div>
+        <div class="alert alert-danger" role="alert">
+            {{ msg }}
+        </div>
+        <meta http-equiv="refresh" content="3; url={{ url_for('User.car') }}">
     {% endif %}
     <br>
     {% if car_list|length > 0 %}

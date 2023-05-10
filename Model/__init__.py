@@ -1,7 +1,9 @@
 import datetime
-import Tool.Mek_master as Mm
-import Tool as tools
+
 from peewee import *
+
+import Tool as tools
+import Tool.Mek_master as Mm
 
 db = SqliteDatabase('sqlite.db')
 
@@ -160,6 +162,7 @@ class DispatchList(BaseModel):
     workorder = ForeignKeyField(WorkOrder, backref='DispatchList')
     project = ForeignKeyField(Project, backref='DispatchList')
     wg = ForeignKeyField(WorkingGroup, backref='DispatchList')
+    price = FloatField(default=0.0)
     number = IntegerField(default=1)
 
 
@@ -206,7 +209,7 @@ def create_demo_workorder():
     car.last_im_time = datetime.datetime.now()
     car.save()
 
-    print(car.code, car.master,car.last_im_time)
+    print(car.code, car.master, car.last_im_time)
     # 获取用户
     user = User.get(id=2)
     print('开单用户', user.username)

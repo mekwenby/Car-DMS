@@ -1,10 +1,10 @@
-import time
 from flask import Flask, render_template, url_for, request, g, make_response, redirect, abort
 from flask_bootstrap import Bootstrap4
+
 import Model.apiengine as mapi
 import Tool as tools
-from userview import bp as userview
 from adminview import bp as adminview
+from userview import bp as userview
 
 app = Flask(__name__)
 bootstrap = Bootstrap4(app=app)
@@ -31,7 +31,7 @@ def time_ftm(value):
 @app.template_filter('md5')
 def get_username_md5(value):
     """获取字符串的md5,用于前端模态框绑定"""
-    return f'Labe{tools.get_name_md5(value)}'
+    return f'Lab{tools.get_name_md5(value)}'
 
 
 # 请求前钩子函数
@@ -145,6 +145,12 @@ def admin():
 def page_not_found():
     """404 not found page"""
     abort(404)
+
+
+def recover():
+    import Model
+    Model.recover()
+    Model.create_demo_data()
 
 
 if __name__ == '__main__':

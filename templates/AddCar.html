@@ -48,6 +48,7 @@
             </div>
             <button type="submit" class="btn btn-primary">保存</button>
             <button type="button" class="btn btn-primary" id="resetBtn" onclick="clearForm()">清空表单</button>
+            <button type="button" class="btn btn-primary" onclick="window.history.back()">返回</button>
         </form>
 
 
@@ -82,11 +83,10 @@
                 </div>
             </div>
             <button type="submit" class="btn btn-primary">保存</button>
+            <button type="button" class="btn btn-primary" onclick="window.history.back()">返回</button>
 
         </form>
     {% endif %}
-
-
 
 {% endblock %}
 

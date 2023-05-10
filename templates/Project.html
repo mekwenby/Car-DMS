@@ -1,0 +1,143 @@
+{% extends 'Base.html' %}
+
+{% block title %}
+    工时项目管理
+{% endblock %}
+
+{% block styles %}
+    #chars {
+    box-sizing: border-box;
+    width: 40%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-left: 5px;
+    margin-top: 10px;
+    }
+    #header-link {
+    color: black;
+    }
+{% endblock %}
+
+{% block body %}
+    <form class="form-inline my-2 my-lg-0" action={{ url_for('User.Project') }}>
+        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="key">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">查找</button>
+        <div style="margin-left: 30px;">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addProject">添加工时项目
+            </button>
+        </div>
+    </form>
+    {# 添加工时项目的模态框 #}
+    <div class="modal fade" id="addProject" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">新增工时项目</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action={{ url_for('User.addProject') }} id="myForm"
+                          onsubmit="return checkForm(this);">
+                        <div class="form-group">
+                            <label for="recipient-name" class="col-form-label">工时代码:</label>
+                            <input type="text" class="form-control" id="recipient-name" name="code">
+                        </div>
+                        <div class="form-group">
+                            <label for="text" class="col-form-label">工时名称:</label>
+                            <input type="text" class="form-control" id="recipient-name" name="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="text" class="col-form-label">工时费:</label>
+                            <input type="text" class="form-control" id="recipient-name" name="price">
+                        </div>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if msg|length > 0 %}
+        <br>
+        {# 处理错误信息 #}
+        <div class="alert alert-danger" role="alert">
+            {{ msg }}
+        </div>
+        <meta http-equiv="refresh" content="3; url={{ url_for('User.Project') }}">
+    {% endif %}
+    <br>
+    {% if Project_list|length > 0 %}
+        <table class="table">
+            <thead>
+            <tr>
+                <th>工时代码</th>
+                <th>工时名称</th>
+                <th>工时费</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for Project in Project_list %}
+                <tr>
+                    <td>{{ Project.code }}</td>
+                    <td>{{ Project.name }}</td>
+                    <td>{{ Project.price }}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary" data-toggle="modal"
+                                data-target="#{{ Project.code|md5 }}">编辑
+                        </button>
+                    </td>
+                    {# 编辑工时项目的模态框 #}
+                    <div class="modal fade" id="{{ Project.code|md5 }}" tabindex="-1"
+                         aria-labelledby="exampleModalLabel"
+                         aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">新增工时项目</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="post" action={{ url_for('User.updateProject') }} id="myForm"
+                                          onsubmit="return checkForm(this);">
+                                        <div class="form-group">
+                                            <label for="recipient-name" class="col-form-label">工时代码:</label>
+                                            <input type="text" class="form-control" id="recipient-name" readonly
+                                                   name="code"
+                                                   value={{ Project.code }}>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="text" class="col-form-label">工时名称:</label>
+                                            <input type="text" class="form-control" id="recipient-name" name="name"
+                                                   value={{ Project.name }}>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="text" class="col-form-label">工时费:</label>
+                                            <input type="text" class="form-control" id="recipient-name" name="price"
+                                                   value={{ Project.price }}>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">保存</button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+{% endblock %}

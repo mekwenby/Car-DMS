@@ -5,6 +5,7 @@ from Model import *
 def get_user(username, passwd):
     '''
     获取用户的信息
+    :param passwd:  密码
     :param username: 用户名
     :return: 用户的信息
     '''
@@ -165,6 +166,64 @@ def update_wg(code, name):
         return True
     except:
         return False
+
+
+def get_all_component_list():
+    return [component for component in Component.select().order_by(Component.name)]
+
+
+def get_key_component_list(key):
+    component_name_list = [component for component in
+                           Component.select().where(Component.name.contains(f'{key}')).order_by(Component.name)]
+    component_code_list = [component for component in
+                           Component.select().where(Component.code.contains(f'{key}')).order_by(Component.name)]
+    # 列表去重操作
+    return list(set(component_name_list + component_code_list))
+
+
+def add_component(code, name, price, position):
+    """
+    添加组件信息
+    """
+    cp = Component.get_or_none(Component.code == code)
+    if cp is None:
+        Component.create(code=code, name=name, to_price=price, position=position)
+        return True
+    else:
+        return False
+
+
+def get_all_ImComponent():
+    # 列表去重
+    return list(set([a for a in Inbound.select().where(Inbound.status == False).order_by(Inbound.create_time)]))
+
+
+def createImComponent(uid):
+    """
+
+    :param uid:     创建人id
+    :return: coe
+    """
+    user = User.get(id=uid)
+    code = tools.get_ImComponent_code()
+    Inbound.create(code=code, master=user)
+    return code
+
+
+def get_ImComponent(code):
+    return [a for a in Inbound.select().where(Inbound.code == code)]
+
+
+def delImComponent(code):
+    # 删除
+    Inbound.delete().where(Inbound.code == code).execute()
+
+
+def addImComponent(ids, code, number, im_price, info):
+    icp = Inbound.get_or_none(Inbound.code == ids)
+    cp = Component.get_or_none(Component.code == code)
+
+    Inbound.create(code=ids, component=cp, price=im_price, number=number, master=icp.master, info=info)
 
 
 if __name__ == '__main__':

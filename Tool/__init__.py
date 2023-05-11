@@ -9,6 +9,14 @@ def get_workorder_code():
     return Mm.get_numbertime() + Mm.get_random_hax(6)
 
 
+def get_ImComponent_code():
+    """
+    获得一个入库单号
+    :return:
+    """
+    return Mm.get_numbertime() + '-' + Mm.get_random_hax(3)
+
+
 def passwd_md5(passwd):
     """获取密码的MD5码"""
     return Mm.get_string_MD5(passwd)

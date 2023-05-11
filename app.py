@@ -20,9 +20,7 @@ app.register_blueprint(adminview, url_prefix='/A')
 def time_ftm(value):
     """将数据库读取的时间格式化为Web页面显示格式"""
     if value is not None:
-        print(value)
         x = '{:%Y-%m-%d %H:%M:%S}'.format(value)
-        print(x)
         return x
     else:
         return None
@@ -154,4 +152,5 @@ def recover():
 
 
 if __name__ == '__main__':
+    #recover()
     app.run(debug=True)

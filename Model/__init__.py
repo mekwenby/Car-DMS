@@ -157,6 +157,7 @@ class Outbound(BaseModel):
 
 
 class DispatchList(BaseModel):
+    # 派工单
     id = AutoField(primary_key=True)
     code = CharField(max_length=128)
     workorder = ForeignKeyField(WorkOrder, backref='DispatchList')
@@ -168,18 +169,20 @@ class DispatchList(BaseModel):
 
 class Inbound(BaseModel):
     """
-    入库单
+    入库单记录表
     code            单号
     master          入库人
     price           价格
+    number          入库数量
     status          入库状态
-    in_time        入库时间
+    in_time         入库时间
     info            备注信息
     """
     id = AutoField(primary_key=True)
-    code = CharField(max_length=128, unique=True)
-    component = ForeignKeyField(Component, backref='Inbound')
+    code = CharField(max_length=128)
+    component = ForeignKeyField(Component, backref='Inbound', null=True)
     price = FloatField(default=0.0)
+    number = IntegerField(default=1)
     create_time = DateTimeField(default=datetime.datetime.now)
     in_time = DateTimeField(null=True)
     status = BooleanField(default=False)
@@ -307,6 +310,4 @@ def recover():
 
 
 if __name__ == '__main__':
-    recover()
-    create_demo_data()
-    create_demo_workorder()
+    pass

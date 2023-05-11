@@ -1,5 +1,4 @@
 from flask import Blueprint, render_template, request, g, redirect, url_for
-
 import Model.apiengine as mapi
 import Tool as tools
 from Model import Car, Project
@@ -184,6 +183,7 @@ def addWorkingGroup():
         return redirect(url_for('login'))
 
 
+# 更新维修班组
 @bp.route('/updateWorkingGroup', methods=['POST'])
 def updateWorkingGroup():
     if g.user is not None and request.method == 'POST':
@@ -212,7 +212,30 @@ def Checkout():
 # 零部件管理页面
 @bp.route('/Component')
 def Component():
-    return render_template('Component.html')
+    if g.user is not None:
+        key = request.args.get('key')
+        if key is None:
+            return render_template('Component.html', component_list=mapi.get_all_component_list())
+        else:
+            return render_template('Component.html', component_list=mapi.get_key_component_list(key))
+    else:
+        return redirect(url_for('login'))
+
+
+@bp.route('/addComponent', methods=['POST'])
+def addComponent():
+    if g.user is not None and request.method == 'POST':
+        code = request.form.get('code')
+        name = request.form.get('name')
+        price = request.form.get('price')
+        position = request.form.get('position')
+        if mapi.add_component(code=code, name=name, price=price, position=position):
+            return redirect(url_for('User.Component'))
+        else:
+            return render_template('Component.html', component_list=mapi.get_all_component_list(), msg=f'{code} 已存在')
+
+    else:
+        return redirect(url_for('login'))
 
 
 # 零部件出库管理
@@ -224,4 +247,57 @@ def ToComponent():
 # 零部件入口管理页面
 @bp.route('/ImComponent')
 def ImComponent():
-    return render_template('ImComponent.html')
+    if g.user is not None:
+        return render_template('ImComponent.html', documents_list=mapi.get_all_ImComponent())
+    else:
+        return redirect(url_for('login'))
+
+
+# 创建入库单
+@bp.route('/createImComponent/<id>')
+def createImComponent(id):
+    """
+    入库单管理
+    id:         入库单号
+    创建时为new
+    """
+    if g.user is not None:
+        if id == 'new':
+            mapi.createImComponent(g.user.id)
+            return redirect(url_for('User.ImComponent'))
+    else:
+        return redirect(url_for('login'))
+
+
+# 编辑入库单
+@bp.route('/editImComponent/<ids>', methods=['POST', 'GET'])
+def editImComponent(ids):
+    if g.user is not None and request.method == 'GET':
+        imcomponent_list = mapi.get_ImComponent(ids)
+        key = request.args.get('key')
+        if key == '':
+            component_list = []
+        else:
+            component_list = mapi.get_key_component_list(key)
+        return render_template('editImComponent.html', imcomponent_list=imcomponent_list, ids=ids,
+                               component_list=component_list)
+    elif g.user is not None and request.method == 'POST':
+        ids = ids
+        code = request.form.get('code')
+        number = request.form.get('n')
+        im_price = request.form.get('p')
+        info = request.form.get('info')
+        mapi.addImComponent(ids=ids, code=code, number=number, im_price=im_price, info=info)
+        return redirect(f'/User/editImComponent/{ids}')
+    else:
+        return redirect(url_for('login'))
+
+
+# 删除入库单
+@bp.route('/delImComponent/<id>')
+def delImComponent(id):
+    if g.user is not None:
+        mapi.delImComponent(id)
+        return redirect(url_for('User.ImComponent'))
+    else:
+        return redirect(url_for('login'))

@@ -1,0 +1,116 @@
+{% extends 'Base.html' %}
+
+{% block title %}
+    入库单编辑
+{% endblock %}
+
+{% block styles %}
+    #chars {
+    box-sizing: border-box;
+    width: 40%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-left: 5px;
+    margin-top: 10px;
+    }
+    #header-link {
+    color: black;
+    }
+{% endblock %}
+
+{% block body %}
+    <h3>入库单号：{{ ids }}</h3>
+    <br>
+    <form class="form-inline my-4 my-lg-0" action="/User/editImComponent/{{ ids }}">
+        <input class="form-control mr-lg-4" type="search" placeholder="零件号或名称" aria-label="零件号或名称" name="key">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">查找</button>
+        <button type="button" class="btn btn-primary" style="margin-left: 2%;">返回</button>
+    </form>
+
+    {% if component_list|length >0 %}
+        <br>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>零件号</th>
+                <th>零件名称</th>
+                <th>库存数量</th>
+                <th>近期入库价</th>
+                <th>货架位置</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for component in component_list %}
+                <tr>
+                    <th>{{ component.code }}</th>
+                    <th>{{ component.name }}</th>
+                    <th>{{ component.number }}</th>
+                    <th>{{ component.im_price }}</th>
+                    <th>{{ component.position }}</th>
+                    <th>
+                        <button type="button" class="btn btn-primary" data-toggle="modal"
+                                data-target="#{{ component.code|md5 }}">
+                            添加
+                        </button>
+                    </th>
+                </tr>
+                <div class="modal fade" id="{{ component.code|md5 }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">添加到入库单</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="post" action="/User/editImComponent/{{ ids }}">
+
+                                    <div class="form-group">
+                                        <label for="recipient-name" class="col-form-label">零件号:</label>
+                                        <input type="text" class="form-control" readonly id="recipient-name" name="code"
+                                               value={{ component.code }}>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="recipient-name" class="col-form-label">零件名称:</label>
+                                        <input type="text" class="form-control" readonly id="recipient-name" name="name"
+                                               value={{ component.name }}>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="recipient-name" class="col-form-label">入库数量:</label>
+                                        <input type="text" class="form-control" id="recipient-name" value="1" name="n">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="recipient-name" class="col-form-label">入库单价:</label>
+                                        <input type="text" class="form-control" id="recipient-name" value="1" name="p">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="recipient-name" class="col-form-label">备注信息:</label>
+                                        <input type="text" class="form-control" id="recipient-name" value="null"
+                                               name="info">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                                        <button type="submit" class="btn btn-primary">确定</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+    <hr>
+    {% if imcomponent_list|length > 1 %}
+        {% for imcomponent in imcomponent_list %}
+            {% if imcomponent.component != None %}
+                {{ imcomponent.component.name }}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends 'Base.html' %}
+
+{% block title %}
+    入库管理
+{% endblock %}
+
+{% block styles %}
+    #chars {
+    box-sizing: border-box;
+    width: 40%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-left: 5px;
+    margin-top: 10px;
+    }
+    #header-link {
+    color: black;
+    }
+{% endblock %}
+
+
+
+{% block body %}
+    <div>
+        <button type="button" class="btn btn-primary" data-toggle="modal"
+                onclick="window.location.href='/User/createImComponent/new'">
+            创建入库单
+        </button>
+    </div>
+
+    <br>
+    {% if documents_list|length > 0 %}
+        <table class="table">
+            <thead>
+            <tr>
+                <th>入库单号</th>
+                <th>创建人</th>
+                <th>创建时间</th>
+                <th>操作按钮</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for documents in documents_list %}
+                <tr>
+                    <td>{{ documents.code }}</td>
+                    <td>{{ documents.master.username }}</td>
+                    <td>{{ documents.create_time|time_ftm }}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary"
+                                onclick="window.location.href='/User/editImComponent/{{ documents.code }}'">编辑
+                        </button>
+                        <button type="button" class="btn btn-success">提交</button>
+                        <button type="button" class="btn btn-danger" data-toggle="modal"
+                                data-target="#{{ documents.code|md5 }}">
+                            删除
+                        </button>
+                    </td>
+                </tr>
+                <!-- Modal -->
+                <div class="modal fade" id={{ documents.code|md5 }} tabindex="-1" aria-labelledby="exampleModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">是否删除?</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <h5>是否要删除 {{ documents.code }} 入库单</h5>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                                <button type="button" class="btn btn-danger"
+                                        onclick="window.location.href='/User/delImComponent/{{ documents.code }}'">确定
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+{% endblock %}

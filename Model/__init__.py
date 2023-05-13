@@ -288,8 +288,23 @@ def create_demo_data():
     Component.create(code=Mm.get_random_hax(4), name='火炬450mm通用机油滤清器', im_price=12.0, to_price=15, number=10,
                      position='A1-21')
     Component.create(code='HYQQXJ', name='化油器清洗剂', im_price=8.0, to_price=10, number=36)
+
+    Component.create(code='KL5W30', name='昆仑5W30 4L', im_price=8.0, to_price=185, number=0)
+    Component.create(code='KL0W20', name='昆仑0W20 4L', im_price=8.0, to_price=215, number=0)
+    Component.create(code='KL5W40', name='昆仑5W40 4L', im_price=8.0, to_price=195, number=0)
+
+    Component.create(code='GHPDK-113', name='高合高性能刹车片-113', im_price=0, to_price=288, number=0)
+    Component.create(code='GHPDK-128', name='高合高性能刹车片-128', im_price=0, to_price=388, number=0)
+    Component.create(code='GHPDK-417', name='高合高性能刹车片-417', im_price=0, to_price=688, number=0)
+
+    Component.create(code='ADD-P-47', name='ADD卡钳', im_price=0, to_price=1888, number=0)
+    Component.create(code='ADD-P-36', name='ADD卡钳', im_price=0, to_price=2888, number=0)
+    Component.create(code='ADD-P-28', name='ADD卡钳', im_price=0, to_price=1265, number=0)
+
     # 生成工时类型
     Project.create(code='0000', name="通用工时", price=1)
+    Project.create(code=Mm.get_random_letters(4), name="普通洗车", price=30)
+    Project.create(code=Mm.get_random_letters(4), name="深度洗车", price=128)
     Project.create(code=Mm.get_random_letters(4), name="常规保养", price=120)
     Project.create(code=Mm.get_random_letters(4), name="四轮定位", price=80)
     # 生成车辆

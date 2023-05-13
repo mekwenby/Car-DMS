@@ -49,7 +49,30 @@
                         <button type="button" class="btn btn-primary"
                                 onclick="window.location.href='/User/editImComponent/{{ documents.code }}'">编辑
                         </button>
-                        <button type="button" class="btn btn-success">提交</button>
+                        <button type="button" class="btn btn-success" data-toggle="modal"
+                                data-target="#p{{ documents.code|md5 }}">提交</button>
+                        <div class="modal fade" id="p{{ documents.code|md5 }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">是否提交?</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <h5>是否要提交 {{ documents.code }} 入库单</h5>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                                <button type="button" class="btn btn-danger"
+                                        onclick="window.location.href='/User/postImComponent/{{ documents.code }}'">确定
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                         <button type="button" class="btn btn-danger" data-toggle="modal"
                                 data-target="#{{ documents.code|md5 }}">
                             删除

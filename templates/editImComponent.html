@@ -24,7 +24,12 @@
     <form class="form-inline my-4 my-lg-0" action="/User/editImComponent/{{ ids }}">
         <input class="form-control mr-lg-4" type="search" placeholder="零件号或名称" aria-label="零件号或名称" name="key">
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">查找</button>
-        <button type="button" class="btn btn-primary" style="margin-left: 2%;">返回</button>
+        <button type="button" class="btn btn-primary" style="margin-left: 2%;" onclick="window.history.back()">返回
+        </button>
+        <button type="button" class="btn btn-primary" style="margin-left: 2%;"
+                onclick="window.location.href='/User/ImComponent'">
+            返回入库单管理
+        </button>
     </form>
 
     {% if component_list|length >0 %}
@@ -106,11 +111,65 @@
     {% endif %}
     <hr>
     {% if imcomponent_list|length > 1 %}
-        {% for imcomponent in imcomponent_list %}
-            {% if imcomponent.component != None %}
-                {{ imcomponent.component.name }}
-            {% endif %}
-        {% endfor %}
+        <h5>已添加配件</h5>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>零件号</th>
+                <th>零件名称</th>
+                <th>操作员</th>
+                <th>入库数量</th>
+                <th>入库单价</th>
+                <th>入库总价</th>
+                <th>货架位置</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for imcomponent in imcomponent_list %}
+                {% if imcomponent.component != None %}
+                    <tr>
+                        <th>{{ imcomponent.component.code }}</th>
+                        <th>{{ imcomponent.component.name }}</th>
+                        <th>{{ imcomponent.master.username }}</th>
+                        <th>{{ imcomponent.number }}</th>
+                        <th>{{ imcomponent.price }}</th>
+                        <th>{{ imcomponent.number*imcomponent.price }}</th>
+                        <th>{{ imcomponent.component.position }}</th>
+                        <th>
+                            <button type="button" class="btn btn-danger" data-toggle="modal"
+                                    data-target="#{{ imcomponent.id|md5 }}">
+                                删除
+                            </button>
+                        </th>
+                    </tr>
+                    <div class="modal fade" id={{ imcomponent.id|md5 }} tabindex="-1"
+                         aria-labelledby="exampleModalLabel"
+                         aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">是否删除?</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <h5>是否要删除 {{ imcomponent.component.name }}</h5>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                                    <button type="button" class="btn btn-danger"
+                                            onclick="window.location.href='/User/delImComponentid/{{ imcomponent.id }}/{{ imcomponent.code }}'">
+                                        确定
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
     {% endif %}
 
 {% endblock %}

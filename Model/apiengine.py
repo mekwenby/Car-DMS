@@ -195,7 +195,12 @@ def add_component(code, name, price, position):
 
 def get_all_ImComponent():
     # 列表去重
-    return list(set([a for a in Inbound.select().where(Inbound.status == False).order_by(Inbound.create_time)]))
+    r_list = []
+    id_list = list(set([a for a in Inbound.select().where(Inbound.status == False).order_by(Inbound.create_time)]))
+    for id in id_list:
+        if id.component == None:
+            r_list.append(id)
+    return r_list
 
 
 def createImComponent(uid):
@@ -219,11 +224,32 @@ def delImComponent(code):
     Inbound.delete().where(Inbound.code == code).execute()
 
 
+def delImComponentid(id):
+    # 删除
+    Inbound.delete().where(Inbound.id == id).execute()
+
+
 def addImComponent(ids, code, number, im_price, info):
     icp = Inbound.get_or_none(Inbound.code == ids)
     cp = Component.get_or_none(Component.code == code)
 
     Inbound.create(code=ids, component=cp, price=im_price, number=number, master=icp.master, info=info)
+
+
+def postImComponent(ids):
+    icp_list = Inbound.select().where(Inbound.code == ids)
+    for icp in icp_list:
+        if icp.component is not None:
+            icp.component.number = icp.component.number + icp.number
+            icp.component.im_price = icp.price
+            icp.in_time = datetime.datetime.now()
+            icp.status = True
+            icp.component.save()
+            icp.save()
+        else:
+            icp.in_time = datetime.datetime.now()
+            icp.status = True
+            icp.save()
 
 
 if __name__ == '__main__':

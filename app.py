@@ -9,7 +9,7 @@ from userview import bp as userview
 app = Flask(__name__)
 bootstrap = Bootstrap4(app=app)
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
-
+app.secret_key = 'your_secret_key_here'
 # 挂载蓝图 --------------------------
 app.register_blueprint(userview, url_prefix='/User')
 app.register_blueprint(adminview, url_prefix='/A')
@@ -29,6 +29,7 @@ def time_ftm(value):
 @app.template_filter('md5')
 def get_username_md5(value):
     """获取字符串的md5,用于前端模态框绑定"""
+    value = str(value)
     return f'Lab{tools.get_name_md5(value)}'
 
 
@@ -152,5 +153,5 @@ def recover():
 
 
 if __name__ == '__main__':
-    #recover()
+    # recover()
     app.run(debug=True)

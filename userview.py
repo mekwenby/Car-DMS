@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, g, redirect, url_for
+from flask import Blueprint, render_template, request, g, redirect, url_for, flash
 import Model.apiengine as mapi
 import Tool as tools
 from Model import Car, Project
@@ -264,6 +264,7 @@ def createImComponent(id):
     if g.user is not None:
         if id == 'new':
             mapi.createImComponent(g.user.id)
+            flash('新建入库单成功！')
             return redirect(url_for('User.ImComponent'))
     else:
         return redirect(url_for('login'))
@@ -298,6 +299,27 @@ def editImComponent(ids):
 def delImComponent(id):
     if g.user is not None:
         mapi.delImComponent(id)
+        return redirect(url_for('User.ImComponent'))
+    else:
+        return redirect(url_for('login'))
+
+
+# 删除入库明细
+@bp.route('/delImComponentid/<eid>/<ids>')
+def delImComponentid(eid, ids):
+    if g.user is not None:
+        mapi.delImComponentid(eid)
+        return redirect(f'/User/editImComponent/{ids}')
+    else:
+        return redirect(url_for('login'))
+
+
+# 提交入库单
+@bp.route('/postImComponent/<ids>')
+def postImComponent(ids):
+    if g.user is not None:
+        mapi.postImComponent(ids)
+        flash(f'{ids} 提交成功！')
         return redirect(url_for('User.ImComponent'))
     else:
         return redirect(url_for('login'))

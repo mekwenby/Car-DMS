@@ -1,0 +1,60 @@
+{% extends 'Woinfo.html' %}
+
+{% block title %}
+    工单出库 {{ wo.code }}
+{% endblock %}
+
+
+{% block mini %}
+
+    {% if outbound_list|length > 0 %}
+        <hr>
+        <hr>
+        <table class="table">
+            <thead>
+            <tr>
+                <th colspan="6">备件清单</th>
+            </tr>
+            <tr>
+                <th>零部件代码</th>
+                <th>零部件名称</th>
+                <th>出库价</th>
+                <th>出库数量</th>
+                <th>库存数量</th>
+                <th>出库日期</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            {% for outbound in outbound_list %}
+                <tr>
+                    <th>{{ outbound.component.code }}</th>
+                    <th>{{ outbound.component.name }}</th>
+                    <th>{{ outbound.price }}</th>
+                    <th>{{ outbound.number }}</th>
+                    <th>{{ outbound.component.number }}</th>
+                    <th>{{ outbound.out_time|time_ftm }}</th>
+                    <th>
+                        {% if outbound.status == False %}
+                            {% if outbound.component.number >= outbound.number %}
+                                <button type="button" class="btn btn-primary"
+                                        onclick="window.location.href='/User/StartTCOK/{{ wo.code }}/{{ outbound.id }}'">
+                                    出库
+                                </button>
+                            {% else %}
+                                库存不足
+                            {% endif %}
+                        {% else %}
+                            <button type="button" class="btn btn-primary"
+                                        onclick="window.location.href='/User/StartTCON/{{ wo.code }}/{{ outbound.id }}'">
+                                    退库
+                                </button>
+                        {% endif %}
+                    </th>
+                </tr>
+
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

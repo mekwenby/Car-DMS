@@ -87,6 +87,14 @@ def add_car(code, car_code, model, master, phone):
     Car.create(code=code, car_code=car_code, model=model, master=master, phone=phone)
 
 
+def get_car_key_list(key):
+    code_list = [car_ for car_ in Car.select().where(Car.code.contains(f'{key}'))]
+    car_code_list = [car_ for car_ in Car.select().where(Car.car_code.contains(f'{key}'))]
+    # 列表去重操作
+    car_list = list(set(code_list + car_code_list))
+    return car_list
+
+
 def get_all_project_list():
     return [project for project in Project.select().order_by(Project.code)]
 
@@ -252,6 +260,134 @@ def postImComponent(ids):
             icp.save()
 
 
+def addWo(code, master):
+    car = Car.get_or_none(Car.car_code == code)
+    WorkOrder.create(code=tools.get_workorder_code(), car=car, master=master, go_component=True)
+
+
+# 获得工单列表
+def get_wo_list():
+    return [wo for wo in WorkOrder.select().where((WorkOrder.checkout == False) & (WorkOrder.delete_ == False))]
+
+
+# 获得单个工单
+def get_wo_code(code):
+    return WorkOrder.get_or_none(WorkOrder.code == code)
+
+
+# 更新车辆里程
+def update_car_distance(wo_code, lc):
+    wo = get_wo_code(wo_code)
+    if wo.car.length <= lc:
+        wo.car.length = lc
+        wo.car.save()
+        return True
+    else:
+        return False
+
+
+# 删除工单
+def delete_wo(code):
+    WorkOrder.update(delete_=True).where(WorkOrder.code == code).execute()
+
+
+# 工单添加工时
+def wo_add_p(wo_code, p_code, number, price):
+    if number == '':
+        number = 1
+    wo = WorkOrder.get_or_none(WorkOrder.code == wo_code)
+    p = Project.get_or_none(Project.code == p_code)
+
+    if price == '':
+        price = p.price
+
+    DispatchList.create(code=tools.get_random_hax(), workorder=wo, project=p, price=price, number=number)
+    wo.workers = False
+    wo.save()
+
+
+# 工单添加部件
+def wo_add_c(wo_code, c_code, number, price):
+    if number == '':
+        number = 1
+    wo = WorkOrder.get_or_none(WorkOrder.code == wo_code)
+    c = Component.get_or_none(Component.code == c_code)
+    if price == '':
+        price = c.to_price
+    Outbound.create(code=tools.get_random_hax(), workorder=wo, component=c, price=price, number=number)
+
+    wo.go_component = False
+    wo.save()
+
+
+# 获取工单的零部件和工时列表
+def get_wo_Dispatch_and_Outbound(wo_code):
+    wo = get_wo_code(wo_code)
+    dispatch_List = [dispatch for dispatch in DispatchList.select().where(DispatchList.workorder == wo)]
+    outbound_list = [inbound for inbound in Outbound.select().where(Outbound.workorder == wo)]
+    return dispatch_List, outbound_list
+
+
+def get_wo_Dispatch(wo):
+    return [dispatch for dispatch in DispatchList.select().where(DispatchList.workorder == wo)]
+
+
+def get_wo_Outbound(wo):
+    return [outbound for outbound in Outbound.select().where(Outbound.workorder == wo)]
+
+
+# 删除工单的零部件和工时
+def delete_fand(code, wo_code):
+    wo = get_wo_code(wo_code)
+    Outbound.delete().where((Outbound.workorder == wo) & (Outbound.code.contains(code))).execute()
+    DispatchList.delete().where((DispatchList.workorder == wo) & (DispatchList.code.contains(code))).execute()
+
+
+def start_dispatch(code, wg_name):
+    wg = WorkingGroup.get_or_none(WorkingGroup.name == wg_name)
+    dp = DispatchList.get_or_none(DispatchList.code == code)
+    dp.wg = wg
+    dp.save()
+    # 判断是否全部派工
+    if DispatchList.select().where((DispatchList.workorder == dp.workorder) & (DispatchList.wg == None)).count() == 0:
+        wo = WorkOrder.get_or_none(WorkOrder.code == dp.workorder.code)
+        wo.workers = True
+        wo.save()
+
+
+def start_tc_ok(wo, tcid, user):
+    od = Outbound.get_or_none(Outbound.workorder == wo, Outbound.id == tcid)
+    od.status = True
+    od.master = user
+    od.out_time = datetime.datetime.now()
+    od.save()
+
+    # 扣库存
+    od.component.number = od.component.number - od.number
+    od.component.save()
+
+    # 判断是否全部出库
+    if Outbound.select().where((Outbound.workorder == wo) & (Outbound.status == False)).count() == 0:
+        wo.go_component = True
+        wo.save()
+
+
+def start_tc_on(wo, tcid, user):
+    od = Outbound.get_or_none(Outbound.workorder == wo, Outbound.id == tcid)
+    od.status = False
+    od.master = user
+    od.out_time = None
+    od.save()
+
+    # 加库存
+    od.component.number = od.component.number + od.number
+    od.component.save()
+
+    wo.go_component = False
+    wo.save()
+
+
 if __name__ == '__main__':
-    c = get_car_carcode('DK965231')
-    print(c)
+    pass
+    # print(get_wo_Dispatch_and_Inbound('20230517161025e1af9e'))
+    # print(get_wo_code('20230517161025e1af9e'))

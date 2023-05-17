@@ -26,6 +26,23 @@ def time_ftm(value):
         return None
 
 
+@app.template_filter('fees')
+def wo_fees(list):
+    total = 0
+    for i in list:
+        total += i.number * i.price
+
+    return total
+
+
+@app.template_filter('wost')
+def wost(wo):
+    if wo.workers == True and wo.go_component == True:
+        return True
+    else:
+        return False
+
+
 @app.template_filter('md5')
 def get_username_md5(value):
     """获取字符串的md5,用于前端模态框绑定"""
@@ -146,6 +163,7 @@ def page_not_found():
     abort(404)
 
 
+# 恢复数据库
 def recover():
     import Model
     Model.recover()

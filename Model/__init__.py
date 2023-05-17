@@ -119,6 +119,7 @@ class WorkOrder(BaseModel):
     init_price          应收金额
     real_price          实收金额
     info                备注信息
+    delete_             删除标记
     """
 
     id = AutoField(primary_key=True)
@@ -133,6 +134,7 @@ class WorkOrder(BaseModel):
     real_price = FloatField(default=0.0)
     checkout = BooleanField(default=False)
     info = CharField(null=True)
+    delete_ = BooleanField(default=False)
 
 
 class Outbound(BaseModel):
@@ -149,7 +151,7 @@ class Outbound(BaseModel):
     code = CharField(max_length=128)
     workorder = ForeignKeyField(WorkOrder, backref='outbound')
     component = ForeignKeyField(Component, backref='outbound')
-    master = ForeignKeyField(User, backref='Outbound')
+    master = ForeignKeyField(User, backref='Outbound', null=True)
     number = IntegerField(default=1)
     price = FloatField(default=0.0)
     status = BooleanField(default=False)
@@ -162,7 +164,7 @@ class DispatchList(BaseModel):
     code = CharField(max_length=128)
     workorder = ForeignKeyField(WorkOrder, backref='DispatchList')
     project = ForeignKeyField(Project, backref='DispatchList')
-    wg = ForeignKeyField(WorkingGroup, backref='DispatchList')
+    wg = ForeignKeyField(WorkingGroup, backref='DispatchList', null=True)
     price = FloatField(default=0.0)
     number = IntegerField(default=1)
 
@@ -308,13 +310,14 @@ def create_demo_data():
     Project.create(code=Mm.get_random_letters(4), name="常规保养", price=120)
     Project.create(code=Mm.get_random_letters(4), name="四轮定位", price=80)
     # 生成车辆
-    Car.create(code=f'临A{Mm.get_random_hax(5).upper()}', car_code=Mm.get_random_hax(18), model='大众捷达 2021款 白色',
-               length=34561,
-               master='刘先生', phone=f'1{Mm.get_random_numbe(10)}')
+    for _ in range(100):
+        Car.create(code=f'临A{Mm.get_random_hax(5).upper()}', car_code=Mm.get_random_hax(18), model='大众捷达 2021款 白色',
+                   length=34561,
+                   master='ACE', phone=f'1{Mm.get_random_numbe(10)}')
 
-    Car.create(code=f'临A{Mm.get_random_hax(5).upper()}', car_code=Mm.get_random_hax(18), model='奥迪A3 2019款 白色',
-               length=int(Mm.get_random_numbe(5)),
-               master='张先生', phone=f'1{Mm.get_random_numbe(10)}')
+        Car.create(code=f'临A{Mm.get_random_hax(5).upper()}', car_code=Mm.get_random_hax(18), model='奥迪A3 2019款 白色',
+                   length=int(Mm.get_random_numbe(5)),
+                   master='Demos', phone=f'1{Mm.get_random_numbe(10)}')
 
 
 def recover():

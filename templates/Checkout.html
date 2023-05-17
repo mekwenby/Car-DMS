@@ -1,10 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Checkout.html</title>
-</head>
-<body>
+{% extends 'Base.html' %}
 
-</body>
-</html>
+{% block title %}
+    工单结算
+{% endblock %}
+
+{% block body %}
+    {% if wo_list|length >0 %}
+        <hr>
+        <div>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">工单号</th>
+                    <th scope="col">车牌号</th>
+                    <th scope="col">车架号</th>
+                    <th scope="col">车型</th>
+                    <th scope="col">派工状态</th>
+                    <th scope="col">出库状态</th>
+                    <th scope="col">服务顾问</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                {% for wo in wo_list %}
+                    <tr>
+                        <th scope="col">{{ wo.code }}</th>
+                        <th scope="col">{{ wo.car.code }}</th>
+                        <th scope="col">{{ wo.car.car_code }}</th>
+                        <th scope="col">{{ wo.car.model }}</th>
+                        <th scope="col">
+                            {% if wo.workers == False %}
+                                未完成派工
+                            {% else %}
+                                已派工
+                            {% endif %}
+
+                        </th>
+
+                        <th scope="col">
+                            {% if wo.go_component == False %}
+                                未完成出库
+                            {% else %}
+                                已出库
+                            {% endif %}
+
+                        </th>
+                        <th scope="col">{{ wo.master.username }}</th>
+                        <th scope="col">
+                            {% if wo|wost == False %}
+                                工单未完成
+                            {% elif wo|wost == True %}
+                                <button type="button" class="btn btn-success"
+                                        onclick="window.location.href='/User/Startdispatch/{{ wo.code }}'">结算
+                                </button>
+                            {% endif %}
+                        </th>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% endblock %}

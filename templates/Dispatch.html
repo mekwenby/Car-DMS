@@ -17,6 +17,8 @@
     color: black;
     }
 {% endblock %}
+
+
 {% block body %}
     {% if wo_list|length >0 %}
         <hr>
@@ -29,6 +31,7 @@
                     <th scope="col">车架号</th>
                     <th scope="col">车型</th>
                     <th scope="col">工单状态</th>
+                    <th scope="col">服务顾问</th>
 
                 </tr>
                 </thead>
@@ -40,10 +43,10 @@
                         <th scope="col">{{ wo.car.car_code }}</th>
                         <th scope="col">{{ wo.car.model }}</th>
                         <th scope="col">
-                            {% if wo.go_component == False %}
-                                未完成出库
+                            {% if wo.workers == False %}
+                                未完成派工
                             {% else %}
-                                已出库
+                                已派工
                             {% endif %}
 
                         </th>
@@ -51,9 +54,8 @@
                         <th scope="col">
 
                             <button type="button" class="btn btn-success"
-                                    onclick="window.location.href='/User/StartTC/{{ wo.code }}'">工单出库
+                                    onclick="window.location.href='/User/Startdispatch/{{ wo.code }}'">开始派工
                             </button>
-
 
                         </th>
                     </tr>

@@ -150,12 +150,111 @@ def updateProject():
 
 
 # 工单管理页面
-@bp.route('/WorkOrder')
+@bp.route('/WorkOrder', methods=['POST', 'GET'])
 def WorkOrder():
-    return redirect(url_for('page_not_found'))
+    if g.user is not None and request.method == 'GET':
+        key = request.args.get('key')
+        if key is None:
+            car_list = []
+        else:
+            car_list = mapi.get_car_key_list(key)
+
+        wo_list = mapi.get_wo_list()
+        print(wo_list)
+        return render_template('WorkOrder.html', car_list=car_list, wo_list=wo_list)
+    else:
+        return redirect(url_for('login'))
 
 
-# 维修班组管理
+# 添加工单
+@bp.route('/addWorkOrder/<code>', methods=['POST', 'GET'])
+def addWorkOrder(code):
+    if g.user is not None and request.method == 'GET':
+        # print(code)
+        mapi.addWo(code, g.user)
+        return redirect(url_for('User.WorkOrder'))
+    else:
+        return redirect(url_for('login'))
+
+
+# 编辑工单
+@bp.route('/editWO/<code>', methods=['POST', 'GET'])
+def editWO(code):
+    if g.user is not None and request.method == 'GET':
+        lc = request.args.get('lc')
+        fand = request.args.get('fand')
+
+        # 处理 fand 的空字符
+        if fand == '':
+            fand = None
+
+        # 处理里程修改
+        if lc is not None:
+            if not mapi.update_car_distance(code, int(lc)):
+                flash('数值输入错误')
+
+        # 处理工时项目查找
+        if fand is not None:
+            """
+            fand_c_list :   零部件列表
+            fand_p_list :   工时项目列表
+            没有时返回空列表
+            """
+            fand_c_list = mapi.get_key_component_list(fand)
+            fand_p_list = mapi.get_key_project_list(fand)
+            print(fand_c_list, fand_p_list)
+        else:
+            fand_c_list = list()
+            fand_p_list = list()
+
+        wo_list = mapi.get_wo_Dispatch_and_Outbound(code)
+
+        return render_template('editWO.html', wo=mapi.get_wo_code(code),
+                               fand_c_list=fand_c_list, fand_p_list=fand_p_list,
+                               wo_dispatch_list=wo_list[0], wo_onbound_list=wo_list[1])
+    else:
+        return redirect(url_for('login'))
+
+
+# 删除工单
+@bp.route('/delwo/<code>', methods=['GET'])
+def deleteWO(code):
+    if g.user is not None and request.method == 'GET':
+        mapi.delete_wo(code)
+        return redirect('/User/WorkOrder')
+    else:
+        return redirect(url_for('login'))
+
+
+# 删除工时或者零部件
+@bp.route('/delfand/<code>/<wo_code>', methods=['GET'])
+def deleteFand(code, wo_code):
+    if g.user is not None and request.method == 'GET':
+        mapi.delete_fand(wo_code=wo_code, code=code)
+        return redirect(f'/User/editWO/{wo_code}')
+    else:
+        return redirect(url_for('login'))
+
+
+# 添加工时项目和零部件
+@bp.route('/addTimeProd/<code>/<class_>', methods=['POST'])
+def addTimeProd(code, class_):
+    if g.user is not None and request.method == 'POST':
+
+        if class_ == 'P':
+            p_code = request.form.get('code')
+            number = request.form.get('number')
+            price = request.form.get('price')
+            mapi.wo_add_p(wo_code=code, p_code=p_code, number=number, price=price)
+        elif class_ == 'C':
+            c_code = request.form.get('code')
+            number = request.form.get('number')
+            price = request.form.get('price')
+            mapi.wo_add_c(wo_code=code, c_code=c_code, number=number, price=price)
+
+        return redirect(f'/User/editWO/{code}')
+
+
 @bp.route('/WorkingGroup')
 def WorkingGroup():
     if g.user is not None:
@@ -200,13 +299,81 @@ def updateWorkingGroup():
 # 派工管理页面
 @bp.route('/Dispatch')
 def Dispatch():
-    return redirect(url_for('page_not_found'))
+    if g.user is not None and request.method == 'GET':
+        key = request.args.get('key')
+        if key is None:
+            car_list = []
+        else:
+            car_list = mapi.get_car_key_list(key)
+
+        wo_list = mapi.get_wo_list()
+        print(wo_list)
+        return render_template('Dispatch.html', car_list=car_list, wo_list=wo_list)
+    else:
+        return redirect(url_for('login'))
+
+
+# 开始派工
+@bp.route('/Startdispatch/<wo_code>', methods=['POST', 'GET'])
+def Startdispatch(wo_code):
+    if g.user is not None and request.method == 'GET':
+        wo = mapi.get_wo_code(wo_code)
+        dispatch_list = mapi.get_wo_Dispatch(wo)
+        return render_template('Startdispatch.html', wo=wo, dispatch_list=dispatch_list)
+
+    if g.user is not None and request.method == 'POST':
+        pid = request.form.get('pid')
+        wg = request.form.get('wg')
+        mapi.start_dispatch(pid, wg)
+
+        return redirect(f'/User/Startdispatch/{wo_code}')
+
+    else:
+        return redirect(url_for('login'))
+
+
+@bp.route('/StartTC/<wo_code>', methods=['POST', 'GET'])
+def StartTC(wo_code):
+    if g.user is not None and request.method == 'GET':
+        wo = mapi.get_wo_code(wo_code)
+        outbound_list = mapi.get_wo_Outbound(wo)
+        print(outbound_list)
+        return render_template('StartTC.html', wo=wo, outbound_list=outbound_list)
+    else:
+        return redirect(url_for('login'))
+
+
+# 确认出库
+@bp.route('/StartTCOK/<wo_code>/<tcid>')
+def StartTCOK(wo_code, tcid):
+    if g.user is not None and request.method == 'GET':
+        wo = mapi.get_wo_code(wo_code)
+        mapi.start_tc_ok(wo=wo, tcid=tcid, user=g.user)
+        return redirect(f'/User/StartTC/{wo_code}')
+    else:
+        return redirect(url_for('login'))
+
+
+# 退库
+@bp.route('/StartTCON/<wo_code>/<tcid>')
+def StartTCON(wo_code, tcid):
+    if g.user is not None and request.method == 'GET':
+        wo = mapi.get_wo_code(wo_code)
+        mapi.start_tc_on(wo=wo, tcid=tcid, user=g.user)
+        return redirect(f'/User/StartTC/{wo_code}')
+    else:
+        return redirect(url_for('login'))
 
 
 # 结算管理页面
 @bp.route('/Checkout')
 def Checkout():
-    return render_template('Checkout.html')
+    if g.user is not None and request.method == 'GET':
+        wo_list = mapi.get_wo_list()
+        print(wo_list)
+        return render_template('Checkout.html', wo_list=wo_list)
+    else:
+        return redirect(url_for('login'))
 
 
 # 零部件管理页面
@@ -241,7 +408,12 @@ def addComponent():
 # 零部件出库管理
 @bp.route('/ToComponent', methods=['POST', 'GET'])
 def ToComponent():
-    return render_template('ToComponent.html')
+    if g.user is not None and request.method == 'GET':
+        wo_list = mapi.get_wo_list()
+        print(wo_list)
+        return render_template('ToComponent.html', wo_list=wo_list)
+    else:
+        return redirect(url_for('login'))
 
 
 # 零部件入口管理页面

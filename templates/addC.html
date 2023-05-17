@@ -1,0 +1,73 @@
+{% macro hello(list,wo) %}
+    {% if list|length >0 %}
+        <br>
+        <hr>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>部件代码</th>
+                <th>部件名称</th>
+                <th>部件售价</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            {% for i in list %}
+                <tr>
+                    <th>{{ i.code }}</th>
+                    <th>{{ i.name }}</th>
+                    <th>{{ i.to_price }}</th>
+                    <th>
+                        <button type="button" class="btn btn-primary" data-toggle="modal"
+                                data-target="#{{ i.code|md5 }}">
+                            添加零部件
+                        </button>
+                    </th>
+                </tr>
+                <div class="modal fade" id="{{ i.code|md5 }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">添加零部件:{{ i.name }}</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="post" action="/User/addTimeProd/{{ wo.code }}/C">
+                                    <div class="form-group">
+                                        <label for="recipient-name" class="col-form-label">零部件代码:</label>
+                                        <input type="text" class="form-control" id="recipient-name" readonly name="code"
+                                               value={{ i.code }}>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="recipient-name" class="col-form-label">零部件名称:</label>
+                                        <input type="text" class="form-control" id="recipient-name" readonly name="name"
+                                               value={{ i.name }}>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="recipient-name" class="col-form-label">数量:</label>
+                                        <input type="text" class="form-control" id="recipient-name" name="number"
+                                               value="1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="recipient-name" class="col-form-label">出库价:</label>
+                                        <input type="text" class="form-control" id="recipient-name" name="price"
+                                               value={{ i.to_price }}>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary" onclick="window.history.back()">确定
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endmacro %}

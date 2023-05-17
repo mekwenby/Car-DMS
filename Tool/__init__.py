@@ -33,5 +33,9 @@ def get_name_md5(name):
     return Mm.get_string_MD5(name)[-5:]
 
 
+def get_random_hax():
+    return Mm.get_random_hax(16)
+
+
 if __name__ == '__main__':
     print(get_workorder_code())

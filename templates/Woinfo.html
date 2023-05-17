@@ -1,0 +1,66 @@
+{% extends 'Base.html' %}
+
+{% block title %}
+    工单编辑 {{ wo.code }}
+{% endblock %}
+
+{% block styles %}
+    #chars {
+    box-sizing: border-box;
+    width: 40%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-left: 5px;
+    margin-top: 10px;
+    }
+    #header-link {
+    color: black;
+    }
+{% endblock %}
+
+{% block body %}
+    <table class="table table-bordered">
+        <thead>
+        </thead>
+        <tbody>
+        <tr>
+            <td>工单号:</td>
+            <td>{{ wo.code }}</td>
+            <td>进店时间:</td>
+            <td>{{ wo.create_time|time_ftm }}</td>
+
+            <td>当前里程:</td>
+            <td>
+                <form action="">
+
+                    <input class="w-50" type="text" name="lc" value="{{ wo.car.length }}" width="200pix;">
+                    <input type="submit" class="btn btn-dark" value="保存">
+
+                </form>
+            </td>
+            <td>服务顾问:</td>
+            <td>{{ wo.master.username }}</td>
+            <td>上次进店时间:</td>
+            <td>{{ wo.car.last_im_time }}</td>
+        </tr>
+        <tr>
+            <td>车牌号:</td>
+            <td>{{ wo.car.code }}</td>
+            <td>车架号:</td>
+            <td>{{ wo.car.car_code }}</td>
+            <td>车型:</td>
+            <td>{{ wo.car.model }}</td>
+            <td>客户名称:</td>
+            <td>{{ wo.car.master }}</td>
+            <td>联系方式:</td>
+            <td>{{ wo.car.phone }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    {% block mini %}
+    {% endblock %}
+
+
+{% endblock %}
+

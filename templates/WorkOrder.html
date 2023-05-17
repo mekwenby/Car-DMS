@@ -1,0 +1,103 @@
+{% extends 'Base.html' %}
+
+{% block title %}
+    工单管理
+{% endblock %}
+
+{% block styles %}
+    #chars {
+    box-sizing: border-box;
+    width: 40%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-left: 5px;
+    margin-top: 10px;
+    }
+    #header-link {
+    color: black;
+    }
+{% endblock %}
+
+
+{% block body %}
+    {# 搜索框 #}
+    <form class="form-inline my-2 my-lg-0" action={{ url_for('User.WorkOrder') }}>
+        <input class="form-control mr-sm-2" type="search" placeholder="车架号或车牌号" aria-label="Search2" name="key">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">查找</button>
+        <div style="margin-left: 30px;">
+            <button type="button" class="btn btn-primary"><a href="/User/addcar/new" id="header-link">添加车辆信息</a>
+            </button>
+        </div>
+    </form>
+
+    {% if car_list|length > 0 %}
+        <hr>
+
+        <div>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">车牌号</th>
+                    <th scope="col">车架号</th>
+                    <th scope="col">车型</th>
+                    <th scope="col">客户</th>
+                    <th scope="col">上次进店时间</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                {% for car in car_list %}
+                    <tr>
+                        <th>{{ car.code }}</th>
+                        <td>{{ car.car_code }}</td>
+                        <td>{{ car.model }}</td>
+                        <td>{{ car.master }}</td>
+                        <td>{{ car.last_im_time }}</td>
+                        <td>
+                            <button type="button" class="btn btn-success"
+                                    onclick="window.location.href='/User/addWorkOrder/{{ car.car_code }}'">创建工单
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    {% if wo_list|length >0 %}
+        <hr>
+        <div>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">工单号</th>
+                    <th scope="col">车牌号</th>
+                    <th scope="col">车架号</th>
+                    <th scope="col">车型</th>
+                    <th scope="col">服务顾问</th>
+                    <th scope="col">客户</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                {% for wo in wo_list %}
+                    <tr>
+                        <th scope="col">{{ wo.code }}</th>
+                        <th scope="col">{{ wo.car.code }}</th>
+                        <th scope="col">{{ wo.car.car_code }}</th>
+                        <th scope="col">{{ wo.car.model }}</th>
+                        <th scope="col">{{ wo.master.username }}</th>
+                        <th scope="col">{{ wo.car.master }}</th>
+                        <th scope="col">
+                            <button type="button" class="btn btn-success"
+                                    onclick="window.location.href='/User/editWO/{{ wo.code }}'">编辑
+                            </button>
+                        </th>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% endblock %}

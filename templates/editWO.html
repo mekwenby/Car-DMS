@@ -1,0 +1,143 @@
+{% extends 'Woinfo.html' %}
+
+{% block title %}
+    工单编辑 {{ wo.code }}
+{% endblock %}
+
+{% block mini %}
+    {# 头部搜索框和作废按钮 #}
+    <div class="row">
+        <div class="col-3">
+            <form class="form-inline my-2 my-lg-0" action="/User/editWO/{{ wo.code }}">
+                <input class="form-control mr-sm-2" type="search"
+                       placeholder="工时或部件信息" aria-label="Search" name="fand">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">查找</button>
+            </form>
+        </div>
+        <div class="col-1">
+            <button type="button" class="btn btn-danger" data-toggle="modal"
+                    data-target="#{{ wo.code|md5 }}">
+                工单作废
+            </button>
+        </div>
+
+        <div class="modal fade" id={{ wo.code|md5 }} tabindex="-1" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">是否删除?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <h5>是否要删除 {{ wo.code }} 工单</h5>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-danger"
+                                onclick="window.location.href='/User/delwo/{{ wo.code }}'">确定
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {# 添加工时部分 #}
+    <div class="row" id="add" style="margin-top: 10px;">{% import 'addP.html' as p %}
+        {{ p.hello(fand_p_list,wo) }}
+    </div>
+    {# 添加零件部分 #}
+    <div class="row" id="add" style="margin-top: 10px;">{% import 'addC.html' as p %}
+        {{ p.hello(fand_c_list,wo) }}
+    </div>
+    {# 已添加工时部分 #}
+    <div class="row">
+
+        {% if wo_dispatch_list|length > 0 %}
+            <hr>
+            <table class="table">
+            <thead>
+            <tr>
+                <th colspan="6">工时项目清单</th>
+            </tr>
+            <tr>
+                <th>工时代码</th>
+                <th>工时名称</th>
+                <th>应收工时费</th>
+                <th>实收收工时费</th>
+                <th>工时数量</th>
+                <th>合计工时费</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            {% for dispatch in wo_dispatch_list %}
+                <tr>
+                    <th>{{ dispatch.project.code }}</th>
+                    <th>{{ dispatch.project.name }}</th>
+                    <th>{{ dispatch.project.price }}</th>
+                    <th>{{ dispatch.price }}</th>
+                    <th>{{ dispatch.number }}</th>
+                    <th>{{ dispatch.number * dispatch.price }}</th>
+                    <th><a href="/User/delfand/{{ dispatch.code }}/{{ wo.code }}">删除</a></th>
+                </tr>
+            {% endfor %}
+        {% endif %}
+        </tbody>
+        </table>
+    </div>
+
+    {# 已添加部件部分 #}
+    <div class="row">
+
+        {% if wo_onbound_list|length > 0 %}
+            <hr>
+            <table class="table">
+            <thead>
+            <tr>
+                <th colspan="6">零部件清单</th>
+            </tr>
+            <tr>
+                <th>部件代码</th>
+                <th>部件名称</th>
+                <th>零部件售价</th>
+                <th>数量</th>
+                <th>总价</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            {% for onbound in wo_onbound_list %}
+                <tr>
+                    <th>{{ onbound.component.code }}</th>
+                    <th>{{ onbound.component.name }}</th>
+                    <th>{{ onbound.price }}</th>
+                    <th>{{ onbound.number }}</th>
+                    <th>{{ onbound.number * onbound.price }}</th>
+                    <th><a href="/User/delfand/{{ onbound.code }}/{{ wo.code }}">删除</a></th>
+                </tr>
+            {% endfor %}
+        {% endif %}
+        </tbody>
+        </table>
+    </div>
+    {# 合计 #}
+    <div class="row">
+        <hr>
+        <table class="table">
+            <tr>
+                <th>合计工时费:</th>
+                <th>{{wo_dispatch_list|fees}}</th>
+
+            </tr>
+            <tr>
+                <th>合计材料费:</th>
+                <th>{{wo_onbound_list|fees}}</th>
+
+            </tr>
+        </table>
+    </div>
+
+{% endblock %}

@@ -206,7 +206,7 @@ def get_all_ImComponent():
     r_list = []
     id_list = list(set([a for a in Inbound.select().where(Inbound.status == False).order_by(Inbound.create_time)]))
     for id in id_list:
-        if id.component == None:
+        if id.component is None:
             r_list.append(id)
     return r_list
 
@@ -278,6 +278,7 @@ def get_wo_code(code):
 # 更新车辆里程
 def update_car_distance(wo_code, lc):
     wo = get_wo_code(wo_code)
+    print(lc)
     if wo.car.length <= lc:
         wo.car.length = lc
         wo.car.save()
@@ -384,6 +385,15 @@ def start_tc_on(wo, tcid, user):
     od.component.save()
 
     wo.go_component = False
+    wo.save()
+
+
+def checkout(wo_code, real_price, price):
+    wo = get_wo_code(wo_code)
+    wo.init_price = price
+    wo.real_price = real_price
+    wo.checkout_time = datetime.datetime.now()
+    wo.checkout = True
     wo.save()
 
 

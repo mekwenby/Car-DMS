@@ -46,9 +46,9 @@
                             {% endif %}
                         {% else %}
                             <button type="button" class="btn btn-primary"
-                                        onclick="window.location.href='/User/StartTCON/{{ wo.code }}/{{ outbound.id }}'">
-                                    退库
-                                </button>
+                                    onclick="window.location.href='/User/StartTCON/{{ wo.code }}/{{ outbound.id }}'">
+                                退库
+                            </button>
                         {% endif %}
                     </th>
                 </tr>
@@ -56,5 +56,13 @@
             {% endfor %}
             </tbody>
         </table>
+    {% else %}
+        <br>
+        <div class="jumbotron jumbotron-fluid">
+            <div class="container">
+                <h1 class="display-4">Not Data</h1>
+                <p class="lead">未添加备件信息</p>
+            </div>
+        </div>
     {% endif %}
 {% endblock %}

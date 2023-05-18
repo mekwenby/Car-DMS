@@ -183,7 +183,7 @@ def editWO(code):
     if g.user is not None and request.method == 'GET':
         lc = request.args.get('lc')
         fand = request.args.get('fand')
-
+        print('lc:',lc)
         # 处理 fand 的空字符
         if fand == '':
             fand = None
@@ -319,7 +319,7 @@ def Startdispatch(wo_code):
     if g.user is not None and request.method == 'GET':
         wo = mapi.get_wo_code(wo_code)
         dispatch_list = mapi.get_wo_Dispatch(wo)
-        return render_template('Startdispatch.html', wo=wo, dispatch_list=dispatch_list)
+        return render_template('Startdispatch.html', wo=wo, dispatch_list=dispatch_list, wg_list=mapi.get_all_wg_list())
 
     if g.user is not None and request.method == 'POST':
         pid = request.form.get('pid')
@@ -366,12 +366,20 @@ def StartTCON(wo_code, tcid):
 
 
 # 结算管理页面
-@bp.route('/Checkout')
+@bp.route('/Checkout', methods=['GET', 'POST'])
 def Checkout():
     if g.user is not None and request.method == 'GET':
         wo_list = mapi.get_wo_list()
         print(wo_list)
         return render_template('Checkout.html', wo_list=wo_list)
+    elif g.user is not None and request.method == 'POST':
+        code = request.form.get('code')
+        price = request.form.get('price')
+        real_price = request.form.get('real_price')
+        mapi.checkout(wo_code=code, price=price, real_price=real_price)
+        return redirect(url_for('User.Checkout'))
+
+
     else:
         return redirect(url_for('login'))
 

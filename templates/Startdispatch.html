@@ -84,5 +84,13 @@
             {% endfor %}
             </tbody>
         </table>
+    {% else %}
+        <br>
+        <div class="jumbotron jumbotron-fluid">
+            <div class="container">
+                <h1 class="display-4">Not Data</h1>
+                <p class="lead">未添加工时项目</p>
+            </div>
+        </div>
     {% endif %}
 {% endblock %}

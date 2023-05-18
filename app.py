@@ -35,6 +35,16 @@ def wo_fees(list):
     return total
 
 
+@app.template_filter('checksum')
+def checksum(wo_code):
+    n = 0
+    for i in mapi.get_wo_Dispatch(wo=mapi.get_wo_code(wo_code)):
+        n += i.price
+    for i in mapi.get_wo_Outbound(wo=mapi.get_wo_code(wo_code)):
+        n += i.price
+    return n
+
+
 @app.template_filter('wost')
 def wost(wo):
     if wo.workers == True and wo.go_component == True:

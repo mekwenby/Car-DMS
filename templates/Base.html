@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
-
     <meta charset="UTF-8">
     <title>
         {% block title %}
@@ -19,7 +18,9 @@
     {# 引入bootstrap #}
     {{ bootstrap.load_css() }}
     {{ bootstrap.load_js() }}
-    <script src="/static/js/my-script.js"></script>
+    <script src="/static/js/my-script.js">
+
+    </script>
 
     <style>
         #nav {
@@ -34,6 +35,23 @@
         tr {
             text-align: center;
             vertical-align: middle;
+        }
+
+        .jumbotron {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .display, .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column; /* 将元素沿垂直方向排列 */
         }
 
 

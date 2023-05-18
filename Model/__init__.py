@@ -1,17 +1,18 @@
 import datetime
-
+import pymysql
 from peewee import *
 
 import Tool as tools
 import Tool.Mek_master as Mm
 
-db = SqliteDatabase('sqlite.db')
+# db = SqliteDatabase('sqlite.db')
 
-'''
+
 # 使用 MySQL 数据库
-db_mysql = MySQLDatabase(host='127.0.0.1', port=3306, user='mek',  # 连接MySQL
-                         passwd='passwd', database='crerp')
-'''
+db_mysql = MySQLDatabase(host='192.168.1.5', port=33306, user='root',  # 连接MySQL
+                         passwd='passwd', database='dms')
+
+db = db_mysql
 
 
 class BaseModel(Model):

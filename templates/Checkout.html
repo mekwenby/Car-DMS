@@ -48,17 +48,71 @@
                         <th scope="col">{{ wo.master.username }}</th>
                         <th scope="col">
                             {% if wo|wost == False %}
-                                工单未完成
+                                <h5>工单未完成</h5>
                             {% elif wo|wost == True %}
-                                <button type="button" class="btn btn-success"
-                                        onclick="window.location.href='/User/Startdispatch/{{ wo.code }}'">结算
+                                <button type="button" class="btn btn-primary" data-toggle="modal"
+                                        data-target="#{{ wo.code|md5 }}">
+                                    结算
                                 </button>
                             {% endif %}
                         </th>
                     </tr>
+                    {# 模态框 #}
+                    <div class="modal fade" id="{{ wo.code|md5 }}" data-backdrop="static" data-keyboard="false"
+                         tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="staticBackdropLabel">工单结算</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    {# info #}
+                                    <p>工单号：{{ wo.code }}</p>
+                                    <p>进店时间{{ wo.create_time }}</p>
+                                    <p>服务顾问：{{ wo.master.username }}</p>
+                                    <p>车牌号：{{ wo.car.code }}</p>
+                                    <p>车架号：{{ wo.car.car_code }}</p>
+                                    <p>客户名称：{{ wo.car.master }}</p>
+
+                                    <form action="/User/Checkout" method="post">
+                                        <div class="form-group">
+                                            <input type="hidden" name="code" value="{{ wo.code }}">
+                                            <label for="exampleInputEmail1">应收金额：</label>
+                                            <input type="number" class="form-control" readonly id="exampleInputEmail1"
+                                                   value="{{ wo.code|checksum }}" name="price">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail1">实收金额：</label>
+                                            <input type="number" class="form-control" value="{{ wo.code|checksum }}"
+                                                   name="real_price">
+                                        </div>
+                                        <div class="modal-footer">
+
+                                            <button type="submit" class="btn btn-primary">提交</button>
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消
+                                            </button>
+                                        </div>
+                                    </form>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
                 {% endfor %}
                 </tbody>
             </table>
+        </div>
+    {% else %}
+        <br>
+        <div class="jumbotron jumbotron-fluid">
+            <div class="container">
+                <h1 class="display-4">Not Data</h1>
+                <p class="lead">你还没有创建任何的工单</p>
+            </div>
         </div>
     {% endif %}
 {% endblock %}

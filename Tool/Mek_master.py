@@ -104,7 +104,7 @@ def addition_write_json(file, Data):  # 追加写入json文件
 
 
 def read_csv(file):  # 读取csv文件返回列表
-    with open(file, 'r', newline='') as file:
+    with open(file, 'r', newline='',encoding='utf8') as file:
         Data = csv.reader(file)
         lis = []
         for i in Data:

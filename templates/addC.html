@@ -19,12 +19,12 @@
                     <th>{{ i.to_price }}</th>
                     <th>
                         <button type="button" class="btn btn-primary" data-toggle="modal"
-                                data-target="#{{ i.code|md5 }}">
+                                data-target="#C{{ i.code|md5 }}">
                             添加零部件
                         </button>
                     </th>
                 </tr>
-                <div class="modal fade" id="{{ i.code|md5 }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                <div class="modal fade" id="C{{ i.code|md5 }}" tabindex="-1" aria-labelledby="exampleModalLabel"
                      aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">

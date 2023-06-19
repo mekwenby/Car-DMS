@@ -86,6 +86,42 @@
             <button type="button" class="btn btn-primary" onclick="window.history.back()">返回</button>
 
         </form>
+        <hr>
+        {% if car.work_order|length > 0 %}
+            <table class="table">
+                <thead>
+                <tr><th colspan="8">维修历史</th></tr>
+                <tr>
+                    <th>工单号</th>
+                    <th>车牌号</th>
+                    <th>创建时间</th>
+                    <th>结算时间</th>
+                    <th>服务顾问</th>
+                    <th>应收金额</th>
+                    <th>实收金额</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                {% for wo in car.work_order|reverse %}
+                    <tr>
+                        <td>{{ wo.code }}</td>
+                        <td>{{ wo.car.code }}</td>
+                        <td>{{ wo.create_time }}</td>
+                        <td>{{ wo.checkout_time }}</td>
+                        <td>{{ wo.master.username }}</td>
+                        <td>{{ wo.init_price }}</td>
+                        <td>{{ wo.real_price }}</td>
+                        <td>
+                            <button type="button" class="btn btn-info"
+                                    onclick="window.open('/print/{{ wo.code }}')">打印
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
     {% endif %}
 
 {% endblock %}

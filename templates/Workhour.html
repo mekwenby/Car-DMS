@@ -1,0 +1,57 @@
+{% extends 'Base.html' %}
+
+{% block title %}
+    工时统计
+{% endblock %}
+
+{% block styles %}
+    #chars {
+    box-sizing: border-box;
+    width: 40%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-left: 5px;
+    margin-top: 10px;
+    }
+    #header-link {
+    color: black;
+    }
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th colspan="9">班组工单统计</th>
+                </tr>
+                <tr>
+                    <th scope="col">班组名称</th>
+                    <th scope="col">今日工时产值</th>
+                    <th scope="col">今日工单数</th>
+                    <th scope="col">昨日工时产值</th>
+                    <th scope="col">昨日工单数</th>
+                    <th scope="col">本周工时产值</th>
+                    <th scope="col">本周工单数</th>
+                    <th scope="col">本月工时产值</th>
+                    <th scope="col">本月工单数</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                {% for i in wh.get_value_list() %}
+                    <tr>
+                        <th>{{ i[0] }}</th>
+                        {% for n in i[1:] %}
+                            <th>{{ n[0] }}</th>
+                            <th>{{ n[1] }}</th>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}

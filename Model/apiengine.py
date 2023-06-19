@@ -1,5 +1,15 @@
 # 数据库API接口
+from datetime import date
+from functools import lru_cache
 from Model import *
+
+
+def up():
+    db.connect()
+
+
+def down():
+    db.close()
 
 
 def get_user(username, passwd):
@@ -74,7 +84,7 @@ def get_user_list():
 
 
 def get_car_list():
-    return [car for car in Car.select()]
+    return [car for car in Car.select().order_by(Car.last_im_time.desc()).limit(100)]
 
 
 def get_car_carcode(code):
@@ -100,9 +110,11 @@ def get_all_project_list():
 
 
 def get_key_project_list(key):
-    p_name_list = [project for project in Project.select().where(Project.name.contains(f'{key}'))]
+    p_name_list = [project for project in
+                   Project.select().where(Project.name.contains(f'{key}')).order_by(Project.code)]
 
-    p_code_list = [project for project in Project.select().where(Project.code.contains(f'{key}'))]
+    p_code_list = [project for project in
+                   Project.select().where(Project.code.contains(f'{key}')).order_by(Project.code)]
 
     # 列表去重操作
     return list(set(p_name_list + p_code_list))
@@ -189,6 +201,18 @@ def get_key_component_list(key):
     return list(set(component_name_list + component_code_list))
 
 
+# 根据零部件代码获取零部件信息
+def get_code_component(code):
+    return Component.get_or_none(Component.code == code)
+
+
+# 修改零部件位置
+def update_component_position(code, position):
+    c = Component.get_or_none(Component.code == code)
+    c.position = position
+    c.save()
+
+
 def add_component(code, name, price, position):
     """
     添加组件信息
@@ -244,6 +268,7 @@ def addImComponent(ids, code, number, im_price, info):
     Inbound.create(code=ids, component=cp, price=im_price, number=number, master=icp.master, info=info)
 
 
+# 提交入库单
 def postImComponent(ids):
     icp_list = Inbound.select().where(Inbound.code == ids)
     for icp in icp_list:
@@ -260,14 +285,47 @@ def postImComponent(ids):
             icp.save()
 
 
+# 新建工单
 def addWo(code, master):
     car = Car.get_or_none(Car.car_code == code)
-    WorkOrder.create(code=tools.get_workorder_code(), car=car, master=master, go_component=True)
+    WorkOrder.create(code=tools.get_workorder_code(), car=car, master=master, go_component=True, length=car.length)
 
 
 # 获得工单列表
 def get_wo_list():
     return [wo for wo in WorkOrder.select().where((WorkOrder.checkout == False) & (WorkOrder.delete_ == False))]
+
+
+# 获得已结算的工单,按checkout_time倒序排列
+def get_ok_wo_list(key=None):
+    if key is None:
+        return [wo for wo in
+                WorkOrder.select().where((WorkOrder.checkout == True) & (WorkOrder.delete_ == False)).order_by(
+                    WorkOrder.checkout_time.desc()).limit(100)]
+
+
+# 根据关键字查找已结算的工单
+def get_ok_wo_list_for_key(key):
+    car_code_list = [wo for wo in
+                     WorkOrder.select().join(Car).where(
+                         (WorkOrder.checkout == True) & (WorkOrder.delete_ == False) &
+                         (Car.code.contains(key))).order_by(
+                         WorkOrder.checkout_time.desc())]
+    wo_code_list = [wo for wo in WorkOrder.select().where((WorkOrder.checkout == True)
+                                                          & (WorkOrder.delete_ == False) & (
+                                                              WorkOrder.code.contains(key))).order_by(
+        WorkOrder.checkout_time.desc())]
+
+    # print(car_code_list, '\n', wo_code_list)
+    wo_list = list(set(wo_code_list + car_code_list))
+    return wo_list
+
+
+# 根据时间段查找工单
+def get_ok_wo_list_for_date(start, end):
+    return [wo for wo in WorkOrder.select().where((WorkOrder.checkout_time > start)
+                                                  & (WorkOrder.checkout_time < end)).order_by(
+        WorkOrder.checkout_time.desc()).limit(100)]
 
 
 # 获得单个工单
@@ -350,7 +408,8 @@ def start_dispatch(code, wg_name):
     dp.wg = wg
     dp.save()
     # 判断是否全部派工
-    if DispatchList.select().where((DispatchList.workorder == dp.workorder) & (DispatchList.wg == None)).count() == 0:
+    if DispatchList.select().where(
+            (DispatchList.workorder == dp.workorder) & (DispatchList.wg == None)).count() == 0:
         wo = WorkOrder.get_or_none(WorkOrder.code == dp.workorder.code)
         wo.workers = True
         wo.save()
@@ -388,16 +447,391 @@ def start_tc_on(wo, tcid, user):
     wo.save()
 
 
+# 结算
 def checkout(wo_code, real_price, price):
     wo = get_wo_code(wo_code)
     wo.init_price = price
     wo.real_price = real_price
     wo.checkout_time = datetime.datetime.now()
     wo.checkout = True
+    wo.length = wo.car.length
     wo.save()
+    wo.car.last_im_time = datetime.datetime.now()
+    wo.car.save()
+
+
+# 零部件入库记录
+def get_c_in_his_list(code):
+    c = Component.get_or_none(Component.code == code)
+    his_list = [i for i in
+                Inbound.select().where((Inbound.component == c) & (Inbound.status == True)).order_by(Inbound.id.desc())]
+    return his_list
+
+
+# 零部件出库记录
+def get_c_to_his_list(code):
+    c = Component.get_or_none(Component.code == code)
+    his_list = [i for i in
+                Outbound.select().where((Outbound.component == c) & (Outbound.status == True)).order_by(
+                    Outbound.out_time.desc()).limit(100)]
+    return his_list
+
+
+# 获得今日产值
+def today_turnover():
+    today = date.today()
+    return WorkOrder.select(fn.Sum(WorkOrder.real_price)). \
+        where((WorkOrder.checkout == True) & (fn.DATE(WorkOrder.checkout_time) == today)).scalar()
+
+
+# 获得昨日的
+def yesterday_turnover():
+    yesterday = date.today() - datetime.timedelta(days=1)
+    return WorkOrder.select(fn.Sum(WorkOrder.real_price)). \
+        where((WorkOrder.checkout == True) & (fn.DATE(WorkOrder.checkout_time) == yesterday)).scalar()
+
+
+# 获得本周的产值
+def week_turnover():
+    today = date.today()
+
+    query = WorkOrder.select(fn.Sum(WorkOrder.real_price)). \
+        where((WorkOrder.checkout == True) & (fn.WEEK(WorkOrder.checkout_time) == fn.WEEK(today)))
+    return query.scalar()
+
+
+# 获得本月的产值
+def month_turnover():
+    today = date.today()
+
+    query = WorkOrder.select(fn.Sum(WorkOrder.real_price)). \
+        where((WorkOrder.checkout == True) & (fn.MONTH(WorkOrder.checkout_time) == fn.MONTH(today)))
+    return query.scalar()
+
+
+class Turnover:
+    pass
+
+
+def get_turnover_list():
+    turnover = Turnover
+    turnover.today = today_turnover()
+    turnover.yesterday = yesterday_turnover()
+    turnover.week = week_turnover()
+    turnover.month = month_turnover()
+    return turnover
+
+
+# 工单数量统计
+class WoQuantity:
+    def todya(self):
+        today = date.today()
+        return WorkOrder.select(). \
+            where((WorkOrder.checkout == True) & (fn.DATE(WorkOrder.checkout_time) == today)).count()
+
+    def yesterday(self):
+        yesterday = date.today() - datetime.timedelta(days=1)
+        return WorkOrder.select(). \
+            where((WorkOrder.checkout == True) & (fn.DATE(WorkOrder.checkout_time) == yesterday)).count()
+
+    def week(self):
+        today = date.today()
+
+        query = WorkOrder.select(). \
+            where((WorkOrder.checkout == True) & (fn.WEEK(WorkOrder.checkout_time) == fn.WEEK(today)))
+        return query.count()
+
+    def month(self):
+        today = date.today()
+
+        query = WorkOrder.select(). \
+            where((WorkOrder.checkout == True) & (fn.MONTH(WorkOrder.checkout_time) == fn.MONTH(today)))
+        return query.count()
+
+    def get_list(self):
+        self.today = self.todya()
+        self.yesterday = self.yesterday()
+        self.week = self.week()
+        self.month = self.month()
+        return self
+
+
+# 各班组工时统计
+class Workhour:
+    def __init__(self):
+        self.wg_list = get_all_wg_list()
+
+    def get_wg_day_hour(self, wg):
+        """获得该班组今日工时费个工单数量"""
+
+        today = date.today()
+        costs = (DispatchList.select(fn.Sum(DispatchList.price * DispatchList.number))
+                 .join(WorkOrder)
+                 .where(
+            (WorkOrder.checkout == True) &
+            (fn.DATE(WorkOrder.checkout_time) == today) & (DispatchList.wg == wg)
+        ).scalar())
+
+        quantity = (DispatchList.select()
+                    .join(WorkOrder)
+                    .where(
+            (WorkOrder.checkout == True) &
+            (fn.DATE(WorkOrder.checkout_time) == today) & (DispatchList.wg == wg)
+        ).count())
+
+        if costs is None:
+            costs = 0
+
+        if quantity is None:
+            quantity = 0
+
+        return costs, quantity
+
+    def get_wg_yesterday_hour(self, wg):
+        """获得该班组昨天工时费个工单数量"""
+
+        today = date.today() - datetime.timedelta(days=1)
+
+        costs = (DispatchList.select(fn.Sum(DispatchList.price * DispatchList.number))
+                 .join(WorkOrder)
+                 .where(
+            (WorkOrder.checkout == True) &
+            (fn.DATE(WorkOrder.checkout_time) == today) & (DispatchList.wg == wg)
+        ).scalar())
+
+        quantity = (DispatchList.select()
+                    .join(WorkOrder)
+                    .where(
+            (WorkOrder.checkout == True) &
+            (fn.DATE(WorkOrder.checkout_time) == today) & (DispatchList.wg == wg)
+        ).count())
+
+        if costs is None:
+            costs = 0
+
+        if quantity is None:
+            quantity = 0
+
+        return costs, quantity
+
+    def get_wg_week_hour(self, wg):
+        """获得该周的总工时费用"""
+        today = date.today()
+        costs = (DispatchList.select(fn.Sum(DispatchList.price * DispatchList.number))
+                 .join(WorkOrder)
+                 .where(
+            (WorkOrder.checkout == True) &
+            (fn.WEEK(WorkOrder.checkout_time) == fn.WEEK(today)) & (DispatchList.wg == wg)
+        ).scalar())
+
+        quantity = (DispatchList.select()
+                    .join(WorkOrder)
+                    .where(
+            (WorkOrder.checkout == True) &
+            (fn.WEEK(WorkOrder.checkout_time) == fn.WEEK(today)) & (DispatchList.wg == wg)
+        ).count())
+
+        if costs is None:
+            costs = 0
+
+        if quantity is None:
+            quantity = 0
+
+        return costs, quantity
+
+    def get_wg_month_hour(self, wg):
+        """获得本月的总工时费用"""
+        today = date.today()
+        costs = (DispatchList.select(fn.Sum(DispatchList.price * DispatchList.number))
+                 .join(WorkOrder)
+                 .where(
+            (WorkOrder.checkout == True) &
+            (fn.MONTH(WorkOrder.checkout_time) == fn.MONTH(today)) & (DispatchList.wg == wg)
+        ).scalar())
+
+        quantity = (DispatchList.select()
+                    .join(WorkOrder)
+                    .where(
+            (WorkOrder.checkout == True) &
+            (fn.MONTH(WorkOrder.checkout_time) == fn.MONTH(today)) & (DispatchList.wg == wg)
+        ).count())
+
+        if costs is None:
+            costs = 0
+
+        if quantity is None:
+            quantity = 0
+
+        return costs, quantity
+
+    def get_value_list(self):
+        """
+        sorted(self.wg_list, key=lambda x: x.name) 用班组的名称进行排序
+        yield 返回可迭代对象
+        """
+        for wg in sorted(self.wg_list, key=lambda x: x.name):
+            yield (wg.name, self.get_wg_day_hour(wg=wg.id), self.get_wg_yesterday_hour(wg=wg.id),
+                   self.get_wg_week_hour(wg=wg.id), self.get_wg_month_hour(wg=wg.id),)
+
+
+# 零部件出入库统计
+class Componentstatistics:
+    def __init__(self):
+        self.token = None
+
+    def get_day_outbound(self):
+        today = date.today()
+        """性能优化: 改善IO次数"""
+        result = Outbound.select(
+            fn.Sum(Outbound.price * Outbound.number).alias('costs'),
+            fn.Count(Outbound.id).alias('quantity')
+        ).where(fn.DATE(Outbound.out_time) == date.today()).dicts().get()
+
+        costs = result['costs']
+        quantity = result['quantity']
+        if costs is None:
+            costs = 0
+
+        if quantity is None:
+            quantity = 0
+
+        return costs, quantity
+
+    def get_yesterday_outbound(self):
+        today = date.today() - datetime.timedelta(days=1)
+        """性能优化: 改善IO次数"""
+        result = Outbound.select(
+            fn.Sum(Outbound.price * Outbound.number).alias('costs'),
+            fn.Count(Outbound.id).alias('quantity')
+        ).where(fn.DATE(Outbound.out_time) == today).dicts().get()
+
+        costs = result['costs']
+        quantity = result['quantity']
+        if costs is None:
+            costs = 0
+
+        if quantity is None:
+            quantity = 0
+
+        return costs, quantity
+
+    def get_week_outbound(self):
+        today = fn.WEEK(date.today())
+        """性能优化: 改善IO次数"""
+        result = Outbound.select(
+            fn.Sum(Outbound.price * Outbound.number).alias('costs'),
+            fn.Count(Outbound.id).alias('quantity')
+        ).where(fn.WEEK(Outbound.out_time) == today).dicts().get()
+
+        costs = result['costs']
+        quantity = result['quantity']
+        if costs is None:
+            costs = 0
+
+        if quantity is None:
+            quantity = 0
+
+        return costs, quantity
+
+    def get_month_outbound(self):
+        today = fn.MONTH(date.today())
+        """性能优化: 改善IO次数"""
+        result = Outbound.select(
+            fn.Sum(Outbound.price * Outbound.number).alias('costs'),
+            fn.Count(Outbound.id).alias('quantity')
+        ).where(fn.MONTH(Outbound.out_time) == today).dicts().get()
+
+        costs = result['costs']
+        quantity = result['quantity']
+        if costs is None:
+            costs = 0
+
+        if quantity is None:
+            quantity = 0
+
+        return costs, quantity
+
+    def get_value_outbound_list(self):
+        return self.get_day_outbound(), self.get_yesterday_outbound(), \
+               self.get_week_outbound(), self.get_month_outbound()
+
+    def get_day_Inbound(self):
+        """性能优化: 改善IO次数"""
+        result = Inbound.select(
+            fn.Sum(Inbound.price * Inbound.number).alias('costs'),
+            fn.Count(Inbound.id).alias('quantity')
+        ).where(fn.DATE(Inbound.in_time) == date.today()).dicts().get()
+
+        costs = result['costs']
+        quantity = result['quantity']
+        if costs is None:
+            costs = 0
+
+        if quantity is None:
+            quantity = 0
+
+        return costs, quantity
+
+    def get_yesterday_Inbound(self):
+        today = date.today() - datetime.timedelta(days=1)
+        """性能优化: 改善IO次数"""
+        result = Inbound.select(
+            fn.Sum(Inbound.price * Inbound.number).alias('costs'),
+            fn.Count(Inbound.id).alias('quantity')
+        ).where(fn.DATE(Inbound.in_time) == today).dicts().get()
+
+        costs = result['costs']
+        quantity = result['quantity']
+        if costs is None:
+            costs = 0
+
+        if quantity is None:
+            quantity = 0
+
+        return costs, quantity
+
+    def get_week_Inbound(self):
+        today = fn.WEEK(date.today())
+        """性能优化: 改善IO次数"""
+        result = Inbound.select(
+            fn.Sum(Inbound.price * Inbound.number).alias('costs'),
+            fn.Count(Inbound.id).alias('quantity')
+        ).where(fn.WEEK(Inbound.in_time) == today).dicts().get()
+
+        costs = result['costs']
+        quantity = result['quantity']
+        if costs is None:
+            costs = 0
+
+        if quantity is None:
+            quantity = 0
+
+        return costs, quantity
+
+    def get_month_Inbound(self):
+        today = fn.MONTH(date.today())
+        """性能优化: 改善IO次数"""
+        result = Inbound.select(
+            fn.Sum(Inbound.price * Inbound.number).alias('costs'),
+            fn.Count(Inbound.id).alias('quantity')
+        ).where(fn.MONTH(Inbound.in_time) == today).dicts().get()
+
+        costs = result['costs']
+        quantity = result['quantity']
+        if costs is None:
+            costs = 0
+
+        if quantity is None:
+            quantity = 0
+
+        return costs, quantity
+
+    def get_value_Inbound_list(self):
+        return self.get_day_Inbound(), self.get_yesterday_Inbound(), \
+               self.get_week_Inbound(), self.get_month_Inbound()
 
 
 if __name__ == '__main__':
-    pass
-    # print(get_wo_Dispatch_and_Inbound('20230517161025e1af9e'))
-    # print(get_wo_code('20230517161025e1af9e'))
+    cs = Componentstatistics()
+    print(cs.get_value_outbound_list())
+    print(cs.get_value_Inbound_list())

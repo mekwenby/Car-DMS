@@ -1,0 +1,84 @@
+{% extends 'Base.html' %}
+
+{% block title %}
+    材料统计
+{% endblock %}
+
+{% block styles %}
+    #chars {
+    box-sizing: border-box;
+    width: 40%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-left: 5px;
+    margin-top: 10px;
+    }
+    #header-link {
+    color: black;
+    }
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-6">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th colspan="8">近期材料出库数据</th>
+                </tr>
+                <tr>
+                    <th scope="col">今日产值</th>
+                    <th scope="col">今日单量</th>
+                    <th scope="col">昨日产值</th>
+                    <th scope="col">昨日单量</th>
+                    <th scope="col">本周产值</th>
+                    <th scope="col">本周单量</th>
+                    <th scope="col">本月产值</th>
+                    <th scope="col">本月单量</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    {% for arr in cs.get_value_outbound_list() %}
+                    <th>{{ arr[0] }}</th>
+                        <th>{{ arr[1] }}</th>
+                    {% endfor %}
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    <div class="col-6">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th colspan="8">近期材料入库数据</th>
+                </tr>
+                <tr>
+                    <th scope="col">今日金额</th>
+                    <th scope="col">今日单量</th>
+                    <th scope="col">昨日金额</th>
+                    <th scope="col">昨日单量</th>
+                    <th scope="col">本周金额</th>
+                    <th scope="col">本周单量</th>
+                    <th scope="col">本月金额</th>
+                    <th scope="col">本月单量</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    {% for arr in cs.get_value_Inbound_list() %}
+                    <th>{{ arr[0] }}</th>
+                        <th>{{ arr[1] }}</th>
+                    {% endfor %}
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    
+
+
+
+
+</div>
+
+{% endblock %}

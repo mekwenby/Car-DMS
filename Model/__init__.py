@@ -1,7 +1,7 @@
 import datetime
 import pymysql
 from peewee import *
-
+import random
 import Tool as tools
 import Tool.Mek_master as Mm
 
@@ -9,8 +9,8 @@ import Tool.Mek_master as Mm
 
 
 # 使用 MySQL 数据库
-db_mysql = MySQLDatabase(host='192.168.1.5', port=33306, user='root',  # 连接MySQL
-                         passwd='passwd', database='dms')
+db_mysql = MySQLDatabase(host='db', port=3306, user='root',  # 连接MySQL
+                         passwd='passwd', database='DMS')
 
 db = db_mysql
 
@@ -121,6 +121,7 @@ class WorkOrder(BaseModel):
     real_price          实收金额
     info                备注信息
     delete_             删除标记
+    length              进店里程
     """
 
     id = AutoField(primary_key=True)
@@ -136,6 +137,7 @@ class WorkOrder(BaseModel):
     checkout = BooleanField(default=False)
     info = CharField(null=True)
     delete_ = BooleanField(default=False)
+    length = IntegerField(default=0)
 
 
 class Outbound(BaseModel):
@@ -208,17 +210,19 @@ def create_table():
     db.close()
 
 
-def create_demo_workorder():
+def create_demo_workorder(ids):
     # 业务数据模拟
     # 获取车辆
-    car = Car.get(id=1)
+
+    car = Car.get(Car.id == ids)
+    # print(car.code)
     car.last_im_time = datetime.datetime.now()
     car.save()
 
-    print(car.code, car.master, car.last_im_time)
+    # print(car.code, car.master, car.last_im_time)
     # 获取用户
     user = User.get(id=2)
-    print('开单用户', user.username)
+    # print('开单用户', user.username)
     wo = WorkOrder(code=tools.get_workorder_code(), car=car, master=user)
     wo.save()
 
@@ -226,18 +230,18 @@ def create_demo_workorder():
     pjct = Project.get(id=1)
     wg = WorkingGroup.get(id=1)
     dpsl = DispatchList(code=wo.code, workorder=wo, project=pjct, wg=wg, number=180)
-    print(f'工时名称:{dpsl.project.name}')
+
     dpsl.save()
 
     # 创建部件需求单
     cp1 = Component.get(id=1)
     cp2 = Component.get(id=2)
     cp3 = Component.get(id=3)
-    print('开始创建出库单')
+    # print('开始创建出库单')
     Outbound.create(code=wo.code, workorder=wo, component=cp1, master=user, price=cp1.to_price)
     Outbound.create(code=wo.code, workorder=wo, component=cp2, master=user, price=cp2.to_price)
     Outbound.create(code=wo.code, workorder=wo, component=cp3, master=user, price=cp3.to_price)
-    print('出库单创建完成')
+    # print('出库单创建完成')
 
     # 完成出库
     outbound_list = [o for o in Outbound.select().where(Outbound.code.contains(wo.code))]
@@ -247,7 +251,7 @@ def create_demo_workorder():
         outbound.status = True
         outbound.out_time = datetime.datetime.now()
         outbound.save()
-        print(outbound.component.name, "完成出库!")
+        # print(outbound.component.name, "完成出库!")
     wo.go_component = True
     wo.save()
 
@@ -256,16 +260,16 @@ def create_demo_workorder():
     wo.save()
 
     if wo.go_component == True and wo.workers == True:
-        print(wo.code, wo.car.code, wo.car.car_code, wo.car.model)
+        # print(wo.code, wo.car.code, wo.car.car_code, wo.car.model)
 
         wg_price = 0  # 用于计算工时费
         for dpsl in DispatchList.select().where(DispatchList.code.contains(wo.code)):
-            print(dpsl.project.name, dpsl.project.price, dpsl.wg.name, dpsl.project.price)
+            # print(dpsl.project.csv.name, dpsl.project.csv.price, dpsl.wg.name, dpsl.project.csv.price)
             wg_price += dpsl.project.price * dpsl.number
 
         outbound_price = 0  # 用于计算材料费
         for outbound in Outbound.select().where(Outbound.code.contains(wo.code)):
-            print(outbound.component.name, outbound.price)
+            # print(outbound.component.name, outbound.price)
             outbound_price += outbound.price * outbound.number
 
         wo.checkout = True
@@ -275,7 +279,7 @@ def create_demo_workorder():
         wo.real_price = wo.init_price
         wo.save()
 
-        print(f'工时费:{wg_price},材料费:{outbound_price},合计:{wg_price + outbound_price}')
+        # print(f'工时费:{wg_price},材料费:{outbound_price},合计:{wg_price + outbound_price}')
 
 
 def create_demo_data():

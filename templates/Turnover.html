@@ -1,0 +1,72 @@
+{% extends 'Base.html' %}
+
+{% block title %}
+    产值统计
+{% endblock %}
+
+{% block styles %}
+    #chars {
+    box-sizing: border-box;
+    width: 40%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-left: 5px;
+    margin-top: 10px;
+    }
+    #header-link {
+    color: black;
+    }
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+
+        <div class="col-6">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th colspan="4">近期产值数据</th>
+                </tr>
+                <tr>
+                    <th scope="col">今日产值</th>
+                    <th scope="col">昨日产值</th>
+                    <th scope="col">本周产值</th>
+                    <th scope="col">本月产值</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th>{{ turnover.today }}</th>
+                    <th>{{ turnover.yesterday }}</th>
+                    <th>{{ turnover.week }}</th>
+                    <th>{{ turnover.month }}</th>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-6">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th colspan="4">近期工单量</th>
+                </tr>
+                <tr>
+                    <th scope="col">今日工单量</th>
+                    <th scope="col">昨日工单量</th>
+                    <th scope="col">本周工单量</th>
+                    <th scope="col">本月工单量</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th>{{ wq.today }}</th>
+                    <th>{{ wq.yesterday }}</th>
+                    <th>{{ wq.week }}</th>
+                    <th>{{ wq.month }}</th>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+{% endblock %}

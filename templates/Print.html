@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ wo.code }}</title>
+    {{ bootstrap.load_css() }}
+    {{ bootstrap.load_js() }}
+
+
+    <style>
+
+
+        tr {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+
+    </style>
+</head>
+<body>
+{# 工单信息 #}
+<div class="container">
+    <h2 style="text-align: center;">宏基汽修结算单</h2>
+    <hr>
+    <table class="table table-bordered">
+        <thead>
+        </thead>
+        <tbody>
+        <tr>
+            <td colspan="4"><h4>工单信息</h4></td>
+        </tr>
+        <tr>
+            <td>工单号:</td>
+            <td>{{ wo.code }}</td>
+            <td>服务顾问:</td>
+            <td>{{ wo.master.username }}</td>
+        <tr>
+            <td>进店时间:</td>
+            <td>{{ wo.create_time|time_ftm }}</td>
+            <td>上次进店时间:</td>
+            <td>{{ wo.car.last_im_time }}</td>
+        <tr>
+            <td>车牌号:</td>
+            <td>{{ wo.car.code }}</td>
+            <td>车架号:</td>
+            <td>{{ wo.car.car_code }}</td>
+        </tr>
+        <tr>
+            <td>车型:</td>
+            <td>{{ wo.car.model }}</td>
+            <td>当前里程:</td>
+            <td>{{ wo.length }}</td>
+        </tr>
+        <tr>
+            <td>客户名称:</td>
+            <td>{{ wo.car.master }}</td>
+            <td>联系方式:</td>
+            <td>{{ wo.car.phone }}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+{# 工时 #}
+<div class="container">
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th colspan="6">工时项目</th>
+        </tr>
+        <tr>
+            <th>工时代码</th>
+            <th>工时名称</th>
+            <th>标准工时费</th>
+            <th>实收工时费</th>
+            <th>施工班组</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for i in wo.DispatchList %}
+            <tr>
+                <th>{{ i.project.code }}</th>
+                <th>{{ i.project.name }}</th>
+                <th>{{ i.project.price }}</th>
+                <th>{{ i.price }}</th>
+                <th>{{ i.wg.name }}</th>
+
+            </tr>
+        {% endfor %}
+        <tr>
+            <th>合计:</th>
+            <th colspan="5">{{ wo.DispatchList|fees }}</th>
+        </tr>
+        </tbody>
+    </table>
+</div>
+{# 部件 #}
+<div class="container">
+    {% if wo.outbound|length > 0 %}
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th colspan="6">零部件清单</th>
+            </tr>
+            <tr>
+                <th>部件代码</th>
+                <th>部件名称</th>
+                <th>出库价</th>
+                <th>数量</th>
+                <th>合计</th>
+                <th>出库时间</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            {% for i in wo.outbound %}
+                <tr>
+                    <th>{{ i.component.code }}</th>
+                    <th>{{ i.component.name }}</th>
+                    <th>{{ i.price }}</th>
+                    <th>{{ i.number }}</th>
+                    <th>{{ i.price*i.number }}</th>
+                    <th>{{ i.out_time }}</th>
+                </tr>
+            {% endfor %}
+            <tr>
+                <th>合计:</th>
+                <th colspan="5">{{ wo.outbound|fees }}</th>
+            </tr>
+            </tbody>
+        </table>
+    {% endif %}
+
+</div>
+{# 底部 #}
+<div class="container">
+    {% if wo.init_price != 0 %}
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>整单应收</th>
+                <th>整单实收</th>
+                <th>折扣率</th>
+            </tr>
+            <tr>
+                <td>{{ wo.init_price }}</td>
+                <td>{{ wo.real_price }}</td>
+                <td>{{ wo|drcl }}</td>
+            </tr>
+            </thead>
+            <tbody>
+        </table>
+        <br>
+        <hr>
+        <h4>结算时间: {{ wo.checkout_time }}</h4>
+    {% else %}
+        <hr>
+        <h4>客户确认签字: </h4>
+        <br>
+        <h4>服务顾问确认签字: </h4>
+    {% endif %}
+</div>
+
+</body>
+
+</html>

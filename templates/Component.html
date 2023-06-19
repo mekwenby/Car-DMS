@@ -96,6 +96,12 @@
                     <td>{{ component.number }}</td>
                     <td>{{ component.to_price }}</td>
                     <td>{{ component.position }}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary"
+                                onclick="window.location.href='/User/Componenthistory/{{ component.code }}'"
+                        >零件详情
+                        </button>
+                    </td>
 
                 </tr>
             {% endfor %}

@@ -7,17 +7,30 @@
 {% block mini %}
     {# 头部搜索框和作废按钮 #}
     <div class="row">
-        <div class="col-3">
+        <div class="col-5">
             <form class="form-inline my-2 my-lg-0" action="/User/editWO/{{ wo.code }}">
                 <input class="form-control mr-sm-2" type="search"
                        placeholder="工时或部件信息" aria-label="Search" name="fand">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">查找</button>
+                <button class="btn btn-outline-success" type="submit">查找</button>
             </form>
         </div>
-        <div class="col-1">
+        <div class="col-2">
+
             <button type="button" class="btn btn-danger" data-toggle="modal"
                     data-target="#{{ wo.code|md5 }}">
                 工单作废
+            </button>
+
+
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-success" onclick="window.open('/print/{{ wo.code }}')">
+                打印预结算单
+            </button>
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-success" onclick="window.location.href='/User/addcar/{{ wo.car.car_code }}'">
+                编辑车辆档案
             </button>
         </div>
 
@@ -129,12 +142,12 @@
         <table class="table">
             <tr>
                 <th>合计工时费:</th>
-                <th>{{wo_dispatch_list|fees}}</th>
+                <th>{{ wo_dispatch_list|fees }}</th>
 
             </tr>
             <tr>
                 <th>合计材料费:</th>
-                <th>{{wo_onbound_list|fees}}</th>
+                <th>{{ wo_onbound_list|fees }}</th>
 
             </tr>
         </table>

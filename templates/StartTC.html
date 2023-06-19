@@ -21,6 +21,7 @@
                 <th>出库价</th>
                 <th>出库数量</th>
                 <th>库存数量</th>
+                <th>货架位置</th>
                 <th>出库日期</th>
 
             </tr>
@@ -33,6 +34,7 @@
                     <th>{{ outbound.price }}</th>
                     <th>{{ outbound.number }}</th>
                     <th>{{ outbound.component.number }}</th>
+                    <th>{{ outbound.component.position }}</th>
                     <th>{{ outbound.out_time|time_ftm }}</th>
                     <th>
                         {% if outbound.status == False %}

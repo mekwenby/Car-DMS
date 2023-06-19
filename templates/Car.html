@@ -58,14 +58,17 @@
                     <td>{{ car.length }}</td>
                     <td>{{ car.last_im_time|time_ftm }}</td>
                     <td>
-                        <button type="button" class="btn btn-primary"><a href="addcar/{{ car.car_code }}"
-                                                                         id="header-link">编辑</a></button>
+                        <button type="button" class="btn btn-primary"
+                                onclick="window.location.href='/User/addcar/{{ car.car_code }}'">编辑
+                        </button>
                     </td>
                 </tr>
             {% endfor %}
+            <tr>
+                <td colspan="6">只显示前100个</td>
+            </tr>
             </tbody>
         </table>
-
     {% endif %}
 
 

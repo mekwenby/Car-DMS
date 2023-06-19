@@ -1,0 +1,114 @@
+{% extends 'Base.html' %}
+
+{% block title %}
+    零部件管理 {{ c.name }}
+{% endblock %}
+
+{% block styles %}
+    #chars {
+    box-sizing: border-box;
+    width: 40%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-left: 5px;
+    margin-top: 10px;
+    }
+    #header-link {
+    color: black;
+    }
+{% endblock %}
+
+{% block body %}
+
+
+    <div class="row">
+        <div class="col-4">
+            <form class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search"
+                       name="position"
+                       value="{{ c.position }}">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">修改零部件位置信息</button>
+            </form>
+        </div>
+
+
+        <div class="col-6">
+            <form class="form-inline my-2 my-lg-0">
+                <label>开始时间:</label>
+                <input class="form-control mr-sm-4" type="date" name="start">
+                <label>结束时间:</label>
+                <input class="form-control mr-sm-4" type="date" name="end">
+                <button class="btn btn-outline-success" type="submit">搜索记录</button>
+            </form>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+
+        {% if c_in_list|length >0 %}
+            <div class="col-5">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th colspan="5">入库记录</th>
+                    </tr>
+                    <tr>
+                        <th>入库单号</th>
+                        <th>入库时间</th>
+                        <th>入库数量</th>
+                        <th>入库人</th>
+                        <th>入库单价</th>
+                    </tr>
+                    </thead>
+                    {% for foo in c_in_list %}
+                        <tr>
+                            <td>{{ foo.code }}</td>
+                            <td>{{ foo.in_time }}</td>
+                            <td>{{ foo.number }}</td>
+                            <td>{{ foo.master.username }}</td>
+                            <td>{{ foo.price }}</td>
+                        </tr>
+
+                    {% endfor %}
+
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+        {% if c_to_list|length >0 %}
+            <div class="col-5">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th colspan="5">出库记录</th>
+                    </tr>
+                    <tr>
+                        <th>出库单号</th>
+                        <th>出库时间</th>
+                        <th>出库数量</th>
+                        <th>出库人</th>
+                        <th>出库单价</th>
+                    </tr>
+                    </thead>
+                    {% for foo in c_to_list %}
+                        <tr>
+                            <td><a target="_blank" href="/print/{{ foo.workorder.code }}">{{ foo.workorder.code }}</a>
+                            </td>
+                            <td>{{ foo.out_time }}</td>
+                            <td>{{ foo.number }}</td>
+                            <td>{{ foo.master.username }}</td>
+                            <td>{{ foo.price }}</td>
+                        </tr>
+
+                    {% endfor %}
+
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+{% endblock %}

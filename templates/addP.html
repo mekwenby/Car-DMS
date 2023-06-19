@@ -19,14 +19,14 @@
                     <th>{{ i.price }}</th>
                     <th>
                         <button type="button" class="btn btn-primary" data-toggle="modal"
-                                data-target="#{{ i.code|md5 }}">
+                                data-target="#P{{ i.code|md5 }}">
                             添加工时
                         </button>
                     </th>
                 </tr>
                 {# 添加工时模态框 #}
 
-                <div class="modal fade" id="{{ i.code|md5 }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                <div class="modal fade" id="P{{ i.code|md5 }}" tabindex="-1" aria-labelledby="exampleModalLabel"
                      aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">

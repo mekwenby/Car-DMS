@@ -75,6 +75,7 @@
                     <a class="dropdown-item" href="{{ url_for('User.WorkOrder') }}">维修开单</a>
                     <a class="dropdown-item" href="{{ url_for('User.Dispatch') }}">维修派工</a>
                     <a class="dropdown-item" href="{{ url_for('User.Checkout') }}">维修结算</a>
+                    <a class="dropdown-item" href="{{ url_for('User.okwo') }}">已结算工单</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="{{ url_for('User.car') }}">车辆档案管理</a>
                     <a class="dropdown-item" href="{{ url_for('User.WorkingGroup') }}">维修班组管理</a>
@@ -92,10 +93,9 @@
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">数据中心</a>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="#">产值统计</a>
-                    <a class="dropdown-item" href="#">工时统计</a>
-                    <a class="dropdown-item" href="#">材料统计</a>
-
+                    <a class="dropdown-item" href="/Data/turnover">产值统计</a>
+                    <a class="dropdown-item" href="/Data/Workhour">工时统计</a>
+                    <a class="dropdown-item" href="/Data/Material">材料统计</a>
                 </div>
             </li>
             <li class="nav-item dropdown">
